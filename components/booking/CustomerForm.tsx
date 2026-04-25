@@ -1,0 +1,112 @@
+'use client'
+import { useForm } from 'react-hook-form'
+import { Button } from '@/components/ui/Button'
+
+export interface CustomerFormValues {
+  name: string
+  phone: string
+  email: string
+  notes: string
+}
+
+interface CustomerFormProps {
+  defaultValues?: Partial<CustomerFormValues>
+  onSubmit: (data: CustomerFormValues) => void
+  isLoading?: boolean
+}
+
+export function CustomerForm({ defaultValues, onSubmit, isLoading }: CustomerFormProps) {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<CustomerFormValues>({ defaultValues })
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="animate-slide-up">
+      <h2 className="text-xl font-bold text-text-primary mb-1">Confirma tus datos</h2>
+      <p className="text-text-secondary text-sm mb-6">Solo necesitamos lo básico</p>
+
+      <div className="flex flex-col gap-4">
+        {/* Nombre */}
+        <div>
+          <label className="label">Nombre completo *</label>
+          <input
+            type="text"
+            placeholder="Tu nombre"
+            autoComplete="name"
+            className="input-field"
+            {...register('name', {
+              required: 'El nombre es obligatorio',
+              minLength: { value: 2, message: 'Nombre muy corto' },
+            })}
+          />
+          {errors.name && (
+            <p className="text-red-400 text-xs mt-1">{errors.name.message}</p>
+          )}
+        </div>
+
+        {/* Teléfono */}
+        <div>
+          <label className="label">Teléfono / WhatsApp *</label>
+          <input
+            type="tel"
+            placeholder="+57 300 123 4567"
+            autoComplete="tel"
+            inputMode="tel"
+            className="input-field"
+            {...register('phone', {
+              required: 'El teléfono es obligatorio',
+              minLength: { value: 7, message: 'Teléfono inválido' },
+            })}
+          />
+          {errors.phone && (
+            <p className="text-red-400 text-xs mt-1">{errors.phone.message}</p>
+          )}
+        </div>
+
+        {/* Correo (opcional) */}
+        <div>
+          <label className="label">
+            Correo electrónico{' '}
+            <span className="text-text-muted font-normal">(opcional)</span>
+          </label>
+          <input
+            type="email"
+            placeholder="tu@correo.com"
+            autoComplete="email"
+            inputMode="email"
+            className="input-field"
+            {...register('email', {
+              pattern: {
+                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                message: 'Correo inválido',
+              },
+            })}
+          />
+          {errors.email && (
+            <p className="text-red-400 text-xs mt-1">{errors.email.message}</p>
+          )}
+        </div>
+
+        {/* Nota (opcional) */}
+        <div>
+          <label className="label">
+            Nota para el barbero{' '}
+            <span className="text-text-muted font-normal">(opcional)</span>
+          </label>
+          <textarea
+            rows={3}
+            placeholder="Ej: Quiero un fade bajo con diseño en el lado..."
+            className="input-field resize-none"
+            {...register('notes')}
+          />
+        </div>
+
+        <Button type="submit" loading={isLoading} fullWidth className="mt-2">
+          Ver resumen de mi cita
+        </Button>
+      </div>
+    </form>
+  )
+}
