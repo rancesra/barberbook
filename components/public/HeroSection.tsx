@@ -31,9 +31,7 @@ export function HeroSection({ barbershop }: HeroSectionProps) {
           <span className="text-gold">barbero favorito</span>
         </h1>
 
-        <p className="text-text-secondary text-base mb-8 max-w-sm mx-auto">
-          Elige barbero, día y hora disponible en menos de 1 minuto. Sin llamadas, sin esperas.
-        </p>
+
 
         {/* CTA principal */}
         <Link

@@ -10,6 +10,7 @@ import {
   Settings,
   LogOut,
   ChevronRight,
+  Crown,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
@@ -20,6 +21,7 @@ const NAV_ITEMS = [
   { href: '/admin/barberos', label: 'Barberos', icon: Users },
   { href: '/admin/servicios', label: 'Servicios', icon: Scissors },
   { href: '/admin/horarios', label: 'Horarios', icon: Clock },
+  { href: '/admin/suscripciones', label: 'Suscripciones', icon: Crown },
   { href: '/admin/configuracion', label: 'Configuración', icon: Settings },
 ]
 

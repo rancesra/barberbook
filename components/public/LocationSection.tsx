@@ -64,7 +64,7 @@ export function LocationSection({ barbershop }: LocationSectionProps) {
 
           {barbershop.google_maps_url && (
             <a
-              href={barbershop.google_maps_url}
+              href={barbershop.google_maps_url2}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-secondary flex items-center justify-center gap-2"

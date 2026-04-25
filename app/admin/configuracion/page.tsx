@@ -119,7 +119,7 @@ export default function ConfiguracionPage() {
             className="input-field"
             value={barbershop.whatsapp ?? ''}
             onChange={(e) => updateField('whatsapp', e.target.value)}
-            placeholder="+57 300 123 4567"
+            placeholder="+57 315 666 9991"
           />
         </div>
 
