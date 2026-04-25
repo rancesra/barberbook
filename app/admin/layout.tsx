@@ -1,17 +1,12 @@
-import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
 import { AdminSidebar } from '@/components/admin/AdminSidebar'
 
-export default async function AdminLayout({
+// La protección de rutas la maneja el middleware.ts
+// El layout solo agrega la estructura visual del panel admin
+export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) redirect('/admin/login')
-
   return (
     <div className="flex min-h-screen bg-bg-primary">
       <AdminSidebar />
