@@ -4,7 +4,6 @@ import { NextResponse, type NextRequest } from 'next/server'
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Crear response base
   let response = NextResponse.next({ request })
 
   const supabase = createServerClient(
@@ -15,10 +14,10 @@ export async function middleware(request: NextRequest) {
         getAll() {
           return request.cookies.getAll()
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
           cookiesToSet.forEach(({ name, value, options }) => {
             request.cookies.set(name, value)
-            response.cookies.set(name, value, options)
+            response.cookies.set(name, value, options as Parameters<typeof response.cookies.set>[2])
           })
         },
       },
@@ -27,7 +26,6 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Proteger rutas /admin/* excepto /admin/login
   if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
     if (!user) {
       return NextResponse.redirect(new URL('/admin/login', request.url))
