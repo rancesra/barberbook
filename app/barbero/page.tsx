@@ -73,7 +73,7 @@ export default function BarberDashboard() {
       .gte('start_time', now.toISOString())
       .order('start_time', { ascending: true })
 
-    setAppointments((appts as Appointment[]) ?? [])
+    setAppointments((appts as unknown as Appointment[]) ?? [])
     setLoading(false)
   }
 
