@@ -18,9 +18,11 @@ export function HeroSection({ barbershop }: HeroSectionProps) {
 
       {/* ── Fondo animado CSS ── */}
       <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[url('/fondo2.webp')] bg-cover bg-center sm:bg-[url('/fondo.webp')]" />
 
         {/* Degradado de fondo */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0E0E0E] via-[#111008] to-[#0a0a0a]" />
+        <div className="absolute inset-0 bg-black/70" />
+        <div className="absolute inset-0 bg-gradient-to-br from-bg-primary/70 via-bg-primary/35 to-bg-primary/85" />
 
         {/* Brillo dorado sutil arriba */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[250px] bg-gold/8 blur-[100px] rounded-full" />
@@ -54,7 +56,7 @@ export function HeroSection({ barbershop }: HeroSectionProps) {
         {/* Logo texto */}
         <div className="flex justify-center mb-8">
           <span
-            className="text-7xl sm:text-8xl tracking-[0.3em] text-white drop-shadow-lg select-none"
+            className="translate-x-[0.15em] text-7xl sm:text-8xl tracking-[0.3em] text-white drop-shadow-lg select-none"
             style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 300 }}
           >
             ARTIST

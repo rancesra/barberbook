@@ -6,15 +6,15 @@ export const metadata: Metadata = {
   description: 'Reserva tu cita en Barbería Artist Studio. Rápido, fácil y desde tu celular.',
   manifest: '/manifest.json',
   icons: {
-    icon: '/logo.jpg',
-    apple: '/logo.jpg',
+    icon: '/logo.webp',
+    apple: '/logo.webp',
   },
   openGraph: {
     title: 'Barbería Artist Studio — Reserva tu cita',
     description: 'Reserva tu cita en Barbería Artist Studio. Rápido, fácil y desde tu celular.',
     url: 'https://barberartist.vercel.app',
     siteName: 'Barbería Artist Studio',
-    images: [{ url: '/logo.jpg', width: 512, height: 512 }],
+    images: [{ url: '/logo.webp', width: 512, height: 512 }],
     locale: 'es_CO',
     type: 'website',
   },

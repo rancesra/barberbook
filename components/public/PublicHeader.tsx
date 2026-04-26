@@ -43,7 +43,7 @@ export function PublicHeader({ barbershop }: PublicHeaderProps) {
         {/* Logo + nombre */}
         <Link href="/" className="flex items-center gap-2.5">
           <Image
-            src={barbershop.logo_url || '/logo.jpg'}
+            src={barbershop.logo_url || '/logo.webp'}
             alt={barbershop.name}
             width={44}
             height={44}

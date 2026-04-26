@@ -56,7 +56,7 @@ export default function NuevoBarberoPage() {
         </div>
         <div>
           <label className="label">URL de foto</label>
-          <input className="input-field" placeholder="/barbers/nombre.jpg" value={form.photo_url} onChange={e => setForm(f => ({ ...f, photo_url: e.target.value }))} />
+          <input className="input-field" placeholder="/barbers/nombre.webp" value={form.photo_url} onChange={e => setForm(f => ({ ...f, photo_url: e.target.value }))} />
         </div>
         <div>
           <label className="label">Orden</label>
