@@ -58,17 +58,23 @@ export function CustomerForm({ defaultValues, onSubmit, isLoading }: CustomerFor
         {/* Teléfono */}
         <div>
           <label className="label">Teléfono / WhatsApp *</label>
-          <input
-            type="tel"
-            placeholder="+57 300 123 4567"
-            autoComplete="tel"
-            inputMode="tel"
-            className="input-field"
-            {...register('phone', {
-              required: 'El teléfono es obligatorio',
-              minLength: { value: 7, message: 'Teléfono inválido' },
-            })}
-          />
+          <div className="flex items-center gap-2">
+            <span className="text-text-muted text-sm bg-bg-tertiary border border-border rounded-xl px-3 py-2.5 flex-shrink-0">+57</span>
+            <input
+              type="tel"
+              inputMode="numeric"
+              placeholder="3156669991"
+              autoComplete="tel"
+              className="input-field flex-1"
+              {...register('phone', {
+                required: 'El teléfono es obligatorio',
+                pattern: { value: /^\d{10}$/, message: 'Debe tener exactamente 10 dígitos' },
+                onChange: (e) => {
+                  e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10)
+                },
+              })}
+            />
+          </div>
           {errors.phone && (
             <p className="text-red-400 text-xs mt-1">{errors.phone.message}</p>
           )}
