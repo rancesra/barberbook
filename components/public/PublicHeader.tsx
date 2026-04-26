@@ -24,7 +24,7 @@ export function PublicHeader({ barbershop }: PublicHeaderProps) {
       provider: 'google',
       options: {
         scopes: 'https://www.googleapis.com/auth/calendar.events',
-        redirectTo: `${window.location.origin}/barberia/${barbershop.slug}`,
+        redirectTo: `${window.location.origin}/`,
       },
     })
   }
@@ -41,20 +41,14 @@ export function PublicHeader({ barbershop }: PublicHeaderProps) {
     <header className="sticky top-0 z-50 bg-bg-primary/90 backdrop-blur-md border-b border-border">
       <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
         {/* Logo + nombre */}
-        <Link href={`/barberia/${barbershop.slug}`} className="flex items-center gap-2.5">
-          {barbershop.logo_url ? (
-            <Image
-              src={barbershop.logo_url}
-              alt={barbershop.name}
-              width={32}
-              height={32}
-              className="rounded-lg object-cover w-8 h-8"
-            />
-          ) : (
-            <div className="w-8 h-8 rounded-lg bg-gold/20 flex items-center justify-center">
-              <Scissors size={16} className="text-gold" />
-            </div>
-          )}
+        <Link href="/" className="flex items-center gap-2.5">
+          <Image
+            src={barbershop.logo_url || '/logo.jpg'}
+            alt={barbershop.name}
+            width={44}
+            height={44}
+            className="rounded-lg object-contain w-11 h-11"
+          />
           <span className="font-bold text-text-primary text-sm leading-tight hidden sm:block">
             {barbershop.name}
           </span>
@@ -82,7 +76,7 @@ export function PublicHeader({ barbershop }: PublicHeaderProps) {
                 <div className="flex items-center gap-2">
                   {/* Mi suscripción */}
                   <Link
-                    href={`/barberia/${barbershop.slug}/mi-suscripcion`}
+                    href="/mi-suscripcion"
                     className="hidden sm:flex items-center gap-1.5 text-gold text-xs font-medium py-1.5 px-3 rounded-lg border border-gold/30 hover:bg-gold/10 transition-colors"
                   >
                     <Crown size={13} />
@@ -131,7 +125,7 @@ export function PublicHeader({ barbershop }: PublicHeaderProps) {
 
           {/* Agendar */}
           <Link
-            href={`/barberia/${barbershop.slug}/agendar`}
+            href="/agendar"
             className="text-bg-primary bg-gold text-xs font-bold py-2 px-4 rounded-lg hover:bg-gold-light transition-colors"
           >
             Agendar

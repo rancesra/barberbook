@@ -1,4 +1,5 @@
 'use client'
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/Button'
 
@@ -19,8 +20,16 @@ export function CustomerForm({ defaultValues, onSubmit, isLoading }: CustomerFor
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<CustomerFormValues>({ defaultValues })
+
+  // Cuando lleguen datos pre-rellenados (ej: del usuario logueado), actualizar el form
+  useEffect(() => {
+    if (defaultValues && Object.keys(defaultValues).some(k => defaultValues[k as keyof typeof defaultValues])) {
+      reset(defaultValues)
+    }
+  }, [defaultValues, reset])
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="animate-slide-up">

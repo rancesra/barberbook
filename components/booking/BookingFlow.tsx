@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
-import { Check, Edit2 } from 'lucide-react'
+import { Check, Edit2, ChevronLeft } from 'lucide-react'
+import Link from 'next/link'
 import { BarberSelector } from './BarberSelector'
 import { ServiceSelector } from './ServiceSelector'
 import { DateSelector } from './DateSelector'
@@ -11,6 +12,8 @@ import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { formatPrice, formatDuration } from '@/lib/utils'
+import { useUser } from '@/hooks/useUser'
+import { createClient } from '@/lib/supabase/client'
 import type {
   Barbershop,
   Barber,
@@ -86,6 +89,7 @@ export function BookingFlow({
   services,
   initialBarberId,
 }: BookingFlowProps) {
+  const { user } = useUser()
   const [selectedBarberId, setSelectedBarberId] = useState<string | null>(initialBarberId ?? null)
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null)
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
@@ -96,6 +100,47 @@ export function BookingFlow({
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [customerData, setCustomerData] = useState<CustomerFormValues | null>(null)
+  const [savedCustomer, setSavedCustomer] = useState<Partial<CustomerFormValues> | null>(null)
+
+  // Cuando el usuario está logueado, buscar sus datos anteriores
+  useEffect(() => {
+    if (!user) return
+    const googleName = user.user_metadata?.name ?? ''
+    const googleEmail = user.email ?? ''
+
+    // 1. Pre-rellenar con datos de Google inmediatamente
+    const base = { name: googleName, email: googleEmail }
+
+    // 2. Revisar localStorage por si ya agendó antes
+    const stored = localStorage.getItem('barberbook_customer')
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored)
+        setSavedCustomer({ ...base, ...parsed })
+        return
+      } catch {}
+    }
+
+    setSavedCustomer(base)
+
+    // 3. Intentar buscar en BD
+    if (!googleEmail) return
+    createClient()
+      .from('customers')
+      .select('name, phone, email')
+      .eq('email', googleEmail)
+      .not('phone', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.phone) {
+          const full = { name: data.name ?? googleName, phone: data.phone, email: data.email ?? googleEmail }
+          setSavedCustomer(full)
+          localStorage.setItem('barberbook_customer', JSON.stringify({ phone: data.phone, name: data.name }))
+        }
+      })
+  }, [user])
 
   // Refs para auto-scroll a cada nueva sección
   const serviceRef = useRef<HTMLDivElement>(null)
@@ -196,6 +241,8 @@ export function BookingFlow({
         setError(result.error || 'Error al crear la cita. Intenta de nuevo.')
         return
       }
+      // Guardar datos del cliente para próximas citas
+      localStorage.setItem('barberbook_customer', JSON.stringify({ name: data.name, phone: data.phone }))
       setSuccess(true)
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } catch {
@@ -238,9 +285,17 @@ export function BookingFlow({
     <div className="min-h-screen bg-bg-primary">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-bg-primary/95 backdrop-blur border-b border-border">
-        <div className="max-w-lg mx-auto px-4 py-3">
-          <p className="text-xs text-text-muted">{barbershop.name}</p>
-          <p className="text-sm font-semibold text-text-primary">Reserva tu cita</p>
+        <div className="max-w-lg mx-auto px-4 py-3 flex items-center gap-3">
+          <Link
+            href="/"
+            className="p-1.5 -ml-1.5 rounded-xl hover:bg-bg-secondary transition-colors"
+          >
+            <ChevronLeft size={20} className="text-text-secondary" />
+          </Link>
+          <div>
+            <p className="text-xs text-text-muted">{barbershop.name}</p>
+            <p className="text-sm font-semibold text-text-primary">Reserva tu cita</p>
+          </div>
         </div>
       </div>
 
@@ -366,9 +421,9 @@ export function BookingFlow({
         {/* ── PASO 5: Datos + Confirmar ── */}
         {selectedSlot && (
           <div ref={formRef} className="pt-2">
-            <SectionTitle number={5} title="Tus datos" sub="Solo necesitamos lo básico" />
+            <SectionTitle number={5} title="Tus datos" sub={savedCustomer?.phone ? "Hemos rellenado tus datos automáticamente" : "Solo necesitamos lo básico"} />
             <CustomerForm
-              defaultValues={customerData ?? undefined}
+              defaultValues={customerData ?? savedCustomer ?? undefined}
               onSubmit={handleFormSubmit}
               isLoading={isConfirming}
             />

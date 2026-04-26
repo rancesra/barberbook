@@ -1,6 +1,5 @@
-import { redirect } from 'next/navigation'
+import BarbershopPage from './barberia/[slug]/page'
 
-// Redirige al slug de la barbería demo
 export default function HomePage() {
-  redirect('/barberia/barberia-elite')
+  return BarbershopPage({ params: Promise.resolve({ slug: 'artist-studio' }) })
 }

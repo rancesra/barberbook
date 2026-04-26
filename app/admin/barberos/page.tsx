@@ -1,15 +1,48 @@
-import { createAdminClient } from '@/lib/supabase/server'
+'use client'
+import { useEffect, useState } from 'react'
+import { PlusCircle, Scissors, Pencil, Trash2 } from 'lucide-react'
 import Image from 'next/image'
-import { PlusCircle, Scissors } from 'lucide-react'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/client'
 
-export default async function BarberosPage() {
-  const supabase = createAdminClient()
+interface Barber {
+  id: string
+  name: string
+  specialty: string | null
+  description: string | null
+  photo_url: string | null
+  is_active: boolean
+  sort_order: number
+}
 
-  const { data: barbers } = await supabase
-    .from('barbers')
-    .select('*')
-    .order('sort_order')
+export default function BarberosPage() {
+  const [barbers, setBarbers] = useState<Barber[]>([])
+  const [loading, setLoading] = useState(true)
+
+  const load = async () => {
+    const { data } = await createClient().from('barbers').select('*').order('sort_order')
+    setBarbers(data ?? [])
+    setLoading(false)
+  }
+
+  useEffect(() => { load() }, [])
+
+  const handleDelete = async (id: string, name: string) => {
+    if (!confirm(`¿Eliminar a "${name}"? Se eliminarán también sus horarios.`)) return
+    const supabase = createClient()
+    await supabase.from('barber_working_hours').delete().eq('barber_id', id)
+    const { error } = await supabase.from('barbers').delete().eq('id', id)
+    if (error) { alert('Error: ' + error.message); return }
+    await load()
+  }
+
+  if (loading) return (
+    <div className="p-6">
+      <div className="animate-pulse space-y-3">
+        {[1,2].map(i => <div key={i} className="h-24 bg-bg-secondary rounded-xl" />)}
+      </div>
+    </div>
+  )
 
   return (
     <div className="p-6 max-w-4xl">
@@ -28,12 +61,8 @@ export default async function BarberosPage() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {barbers?.map((barber) => (
-          <Link
-            key={barber.id}
-            href={`/admin/barberos/${barber.id}`}
-            className="card p-4 hover:border-border-light transition-colors flex items-start gap-4"
-          >
+        {barbers.map((barber) => (
+          <div key={barber.id} className="card p-4 flex items-start gap-4">
             {barber.photo_url ? (
               <Image
                 src={barber.photo_url}
@@ -51,34 +80,38 @@ export default async function BarberosPage() {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <p className="font-semibold text-text-primary">{barber.name}</p>
-                <span
-                  className={`text-xs px-2 py-0.5 rounded-full ${
-                    barber.is_active
-                      ? 'bg-green-900/40 text-green-400'
-                      : 'bg-gray-800 text-text-muted'
-                  }`}
-                >
+                <span className={`text-xs px-2 py-0.5 rounded-full ${barber.is_active ? 'bg-green-900/40 text-green-400' : 'bg-gray-800 text-text-muted'}`}>
                   {barber.is_active ? 'Activo' : 'Inactivo'}
                 </span>
               </div>
               <p className="text-gold text-sm mt-0.5">{barber.specialty}</p>
               {barber.description && (
-                <p className="text-text-secondary text-xs mt-1.5 line-clamp-2">
-                  {barber.description}
-                </p>
-              )}
-              {barber.calendar_id && (
-                <p className="text-text-muted text-xs mt-1.5 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
-                  Google Calendar conectado
-                </p>
+                <p className="text-text-secondary text-xs mt-1 line-clamp-2">{barber.description}</p>
               )}
             </div>
-          </Link>
+
+            {/* Acciones */}
+            <div className="flex flex-col gap-1 flex-shrink-0">
+              <Link
+                href={`/admin/barberos/${barber.id}`}
+                className="p-2 rounded-lg text-text-muted hover:text-gold hover:bg-gold/10 transition-colors"
+                title="Editar"
+              >
+                <Pencil size={15} />
+              </Link>
+              <button
+                onClick={() => handleDelete(barber.id, barber.name)}
+                className="p-2 rounded-lg text-text-muted hover:text-red-400 hover:bg-red-900/20 transition-colors"
+                title="Eliminar"
+              >
+                <Trash2 size={15} />
+              </button>
+            </div>
+          </div>
         ))}
       </div>
 
-      {barbers?.length === 0 && (
+      {barbers.length === 0 && (
         <div className="card p-12 text-center">
           <Scissors size={32} className="text-text-muted mx-auto mb-3" />
           <p className="text-text-secondary">No hay barberos registrados</p>

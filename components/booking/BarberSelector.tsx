@@ -19,9 +19,6 @@ export function BarberSelector({
 }: BarberSelectorProps) {
   return (
     <div className="animate-slide-up">
-      <h2 className="text-xl font-bold text-text-primary mb-1">Elige tu barbero</h2>
-      <p className="text-text-secondary text-sm mb-5">Selecciona con quién quieres tu cita</p>
-
       <div className="flex flex-col gap-3">
         {barbers.map((barber) => {
           const days = availability[barber.id] || []

@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { createAdminClient } from '@/lib/supabase/server'
 import { format, startOfDay, endOfDay, startOfWeek, endOfWeek } from 'date-fns'
 import { Calendar, Users, Scissors, Clock, TrendingUp } from 'lucide-react'
