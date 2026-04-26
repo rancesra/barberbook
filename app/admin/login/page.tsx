@@ -26,8 +26,8 @@ export default function LoginPage() {
       return
     }
 
-    router.push('/admin')
-    router.refresh()
+    // Redirect duro para que el middleware lea la sesión correctamente
+    window.location.href = '/admin'
   }
 
   return (
