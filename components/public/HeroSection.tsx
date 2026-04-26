@@ -1,5 +1,6 @@
+'use client'
 import Link from 'next/link'
-import { MapPin, Clock, MessageCircle } from 'lucide-react'
+import { MapPin, Clock, MessageCircle, Crown, ChevronDown } from 'lucide-react'
 import { buildWhatsAppLink } from '@/lib/utils'
 import type { Barbershop } from '@/types'
 
@@ -102,6 +103,18 @@ export function HeroSection({ barbershop }: HeroSectionProps) {
             Contactar por WhatsApp
           </a>
         )}
+
+        {/* Botón ver planes */}
+        <div className="mt-4">
+          <button
+            onClick={() => document.getElementById('planes')?.scrollIntoView({ behavior: 'smooth' })}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-gold/30 bg-gold/10 text-gold text-sm font-semibold hover:bg-gold/20 hover:border-gold/50 transition-all active:scale-95 group"
+          >
+            <Crown size={14} />
+            Ver planes de suscripción
+            <ChevronDown size={14} className="group-hover:translate-y-0.5 transition-transform" />
+          </button>
+        </div>
       </div>
     </section>
   )
