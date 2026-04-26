@@ -116,8 +116,8 @@ export function PublicHeader({ barbershop }: PublicHeaderProps) {
                   className="flex items-center gap-1.5 text-text-secondary text-xs font-medium py-1.5 px-3 rounded-lg border border-border hover:border-border-light hover:text-text-primary transition-colors"
                 >
                   <LogIn size={13} />
-                  <span className="hidden sm:inline">Google Calendar</span>
-                  <span className="sm:hidden">Sincronizar</span>
+                  <span className="hidden sm:inline">Iniciar Sesion Google</span>
+                  <span className="sm:hidden">Iniciar Sesion</span>
                 </button>
               )}
             </>
