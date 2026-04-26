@@ -32,9 +32,15 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  if (pathname.startsWith('/barbero') && pathname !== '/barbero/login') {
+    if (!user) {
+      return NextResponse.redirect(new URL('/barbero/login', request.url))
+    }
+  }
+
   return response
 }
 
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: ['/admin/:path*', '/barbero/:path*'],
 }
