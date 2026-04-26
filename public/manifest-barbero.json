@@ -1,0 +1,22 @@
+{
+  "name": "Artist — Panel Barbero",
+  "short_name": "Mi Panel",
+  "description": "Panel de gestión para barberos de Artist Studio",
+  "start_url": "/barbero",
+  "display": "standalone",
+  "background_color": "#0E0E0E",
+  "theme_color": "#0E0E0E",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/logo.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "/logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}

@@ -1,4 +1,10 @@
+import type { Metadata } from 'next'
 import { BarberNav } from '@/components/barbero/BarberNav'
+
+export const metadata: Metadata = {
+  title: 'Mi Panel — Artist Studio',
+  manifest: '/manifest-barbero.json',
+}
 
 export default function BarberLayout({ children }: { children: React.ReactNode }) {
   return (
