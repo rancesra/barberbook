@@ -49,8 +49,10 @@ export function BookingSuccess({
     barbershopName: barbershop.name,
   })
 
-  const whatsappLink = barbershop.whatsapp
-    ? buildWhatsAppLink(barbershop.whatsapp, whatsappMessage)
+  // Usar el teléfono del barbero si tiene, si no el de la barbería
+  const whatsappNumber = barber.phone || barbershop.whatsapp
+  const whatsappLink = whatsappNumber
+    ? buildWhatsAppLink(whatsappNumber, whatsappMessage)
     : null
 
   const mapsLink = barbershop.google_maps_url || null
