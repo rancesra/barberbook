@@ -104,7 +104,7 @@ export function CustomerForm({ defaultValues, onSubmit, isLoading }: CustomerFor
         </div>
 
         <Button type="submit" loading={isLoading} fullWidth className="mt-2">
-          Ver resumen de mi cita
+          Confirmar cita
         </Button>
       </div>
     </form>
