@@ -68,10 +68,13 @@ export function PublicFooter({ barbershop }: PublicFooterProps) {
           <p className="text-text-muted text-xs">
             © {currentYear} {barbershop.name}. Todos los derechos reservados.
           </p>
-          <p className="text-text-muted text-xs">
-            Powered by{' '}
-            <span className="text-gold font-medium">BarberBook</span>
-          </p>
+          <div className="flex items-center gap-3 text-xs text-text-muted">
+            <a href="/privacidad" className="hover:text-text-secondary transition-colors">Privacidad</a>
+            <span>·</span>
+            <a href="/terminos" className="hover:text-text-secondary transition-colors">Términos</a>
+            <span>·</span>
+            <span>Powered by <span className="text-gold font-medium">BarberBook</span></span>
+          </div>
         </div>
       </div>
     </footer>
