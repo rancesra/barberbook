@@ -98,8 +98,8 @@ export default function BarberDashboard() {
         .neq('status', 'cancelled'),
     ])
 
-    const sumPrices = (data: unknown[] | null) =>
-      (data ?? []).reduce((acc, row: unknown) => {
+    const sumPrices = (data: unknown[] | null): number =>
+      (data ?? []).reduce((acc: number, row: unknown) => {
         const r = row as { service?: { price?: number } | null }
         return acc + (r.service?.price ?? 0)
       }, 0)
