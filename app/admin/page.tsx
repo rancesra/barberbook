@@ -54,9 +54,9 @@ async function getDashboardData() {
       .neq('status', 'cancelled'),
   ])
 
-  const sumPrices = (data: unknown[] | null) => {
+  const sumPrices = (data: unknown[] | null): number => {
     if (!data) return 0
-    return data.reduce((acc, row: unknown) => {
+    return data.reduce((acc: number, row: unknown) => {
       const r = row as { service?: { price?: number } | null }
       return acc + (r.service?.price ?? 0)
     }, 0)
