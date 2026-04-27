@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Phone, MessageCircle, Check, X, Trash2 } from 'lucide-react'
+import { Phone, MessageCircle, Check, Trash2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { buildWhatsAppLink } from '@/lib/utils'
 
@@ -133,20 +133,8 @@ export default function ReservasPage() {
                     </a>
                   )}
                   {appt.status === 'confirmed' && (
-                    <>
-                      <button onClick={() => updateStatus(appt.id, 'completed')}
-                        className="p-2 rounded-lg text-blue-400 hover:bg-blue-900/20 transition-colors" title="Marcar completada">
-                        <Check size={16} />
-                      </button>
-                      <button onClick={() => updateStatus(appt.id, 'cancelled')}
-                        className="p-2 rounded-lg text-red-400 hover:bg-red-900/20 transition-colors" title="Cancelar">
-                        <X size={16} />
-                      </button>
-                    </>
-                  )}
-                  {appt.status === 'cancelled' && (
-                    <button onClick={() => updateStatus(appt.id, 'confirmed')}
-                      className="p-2 rounded-lg text-green-400 hover:bg-green-900/20 transition-colors" title="Reactivar">
+                    <button onClick={() => updateStatus(appt.id, 'completed')}
+                      className="p-2 rounded-lg text-blue-400 hover:bg-blue-900/20 transition-colors" title="Marcar completada">
                       <Check size={16} />
                     </button>
                   )}

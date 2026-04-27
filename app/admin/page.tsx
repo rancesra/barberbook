@@ -1,9 +1,10 @@
 export const dynamic = 'force-dynamic'
 import { createAdminClient } from '@/lib/supabase/server'
-import { format, startOfDay, endOfDay, startOfWeek, endOfWeek } from 'date-fns'
-import { Calendar, Users, Scissors, Clock, TrendingUp } from 'lucide-react'
+import { format, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth } from 'date-fns'
+import { Calendar, Users, Scissors, Clock, TrendingUp, DollarSign } from 'lucide-react'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/Badge'
+import { formatPrice } from '@/lib/utils'
 import type { AppointmentStatus } from '@/types'
 
 async function getDashboardData() {
@@ -13,8 +14,9 @@ async function getDashboardData() {
   const todayEnd = endOfDay(now).toISOString()
   const weekStart = startOfWeek(now, { weekStartsOn: 1 }).toISOString()
   const weekEnd = endOfWeek(now, { weekStartsOn: 1 }).toISOString()
+  const monthStart = startOfMonth(now).toISOString()
 
-  const [todayRes, weekRes, barbersRes, servicesRes, upcomingRes] = await Promise.all([
+  const [todayRes, weekRes, barbersRes, servicesRes, upcomingRes, earnedTodayRes, earnedMonthRes] = await Promise.all([
     supabase
       .from('appointments')
       .select('id', { count: 'exact' })
@@ -36,7 +38,29 @@ async function getDashboardData() {
       .neq('status', 'cancelled')
       .order('start_time', { ascending: true })
       .limit(8),
+    // Ganado hoy: citas ya pasadas hoy (start_time <= now) y no canceladas
+    supabase
+      .from('appointments')
+      .select('service:services(price)')
+      .gte('start_time', todayStart)
+      .lte('start_time', now.toISOString())
+      .neq('status', 'cancelled'),
+    // Ganado este mes: citas ya pasadas en el mes y no canceladas
+    supabase
+      .from('appointments')
+      .select('service:services(price)')
+      .gte('start_time', monthStart)
+      .lte('start_time', now.toISOString())
+      .neq('status', 'cancelled'),
   ])
+
+  const sumPrices = (data: unknown[] | null) => {
+    if (!data) return 0
+    return data.reduce((acc, row: unknown) => {
+      const r = row as { service?: { price?: number } | null }
+      return acc + (r.service?.price ?? 0)
+    }, 0)
+  }
 
   return {
     todayCount: todayRes.count ?? 0,
@@ -44,6 +68,8 @@ async function getDashboardData() {
     activeBarbers: barbersRes.count ?? 0,
     activeServices: servicesRes.count ?? 0,
     upcoming: upcomingRes.data ?? [],
+    earnedToday: sumPrices(earnedTodayRes.data),
+    earnedMonth: sumPrices(earnedMonthRes.data),
   }
 }
 
@@ -112,6 +138,22 @@ export default async function AdminDashboard() {
           value={data.activeServices}
           icon={<Scissors size={20} />}
           href="/admin/servicios"
+        />
+      </div>
+
+      {/* Ingresos */}
+      <div className="grid grid-cols-2 gap-4 mb-8">
+        <StatCard
+          label="Ganado hoy"
+          value={formatPrice(data.earnedToday)}
+          icon={<DollarSign size={20} />}
+          sub="citas completadas hoy"
+        />
+        <StatCard
+          label="Ganado este mes"
+          value={formatPrice(data.earnedMonth)}
+          icon={<DollarSign size={20} />}
+          sub="citas completadas en el mes"
         />
       </div>
 

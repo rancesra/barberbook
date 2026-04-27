@@ -48,7 +48,7 @@ export function slugify(text: string): string {
 
 export function formatPrice(price: number | null): string {
   if (price === null) return ''
-  return `$${price.toFixed(0)}`
+  return `$${price.toLocaleString('es-CO')}`
 }
 
 export function formatDuration(minutes: number): string {

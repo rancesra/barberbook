@@ -1,10 +1,11 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { format, isToday, isTomorrow, parseISO } from 'date-fns'
+import { format, isToday, isTomorrow, parseISO, startOfDay, startOfMonth } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Calendar, Check, X, Trash2, Clock, User, Scissors } from 'lucide-react'
+import { Calendar, Check, Trash2, Clock, User, Scissors } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Badge } from '@/components/ui/Badge'
+import { formatPrice } from '@/lib/utils'
 import type { AppointmentStatus } from '@/types'
 
 interface Appointment {
@@ -14,7 +15,7 @@ interface Appointment {
   status: AppointmentStatus
   notes: string | null
   customer: { name: string; phone: string } | null
-  service: { name: string; duration_minutes: number } | null
+  service: { name: string; duration_minutes: number; price?: number } | null
 }
 
 interface Barber {
@@ -42,6 +43,8 @@ function groupByDay(appointments: Appointment[]) {
 export default function BarberDashboard() {
   const [barber, setBarber] = useState<Barber | null>(null)
   const [appointments, setAppointments] = useState<Appointment[]>([])
+  const [earnedToday, setEarnedToday] = useState(0)
+  const [earnedMonth, setEarnedMonth] = useState(0)
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
 
@@ -61,19 +64,48 @@ export default function BarberDashboard() {
     if (!barberData) return
     setBarber(barberData)
 
-    // Cargar sus citas desde hoy en adelante
     const now = new Date()
-    now.setHours(0, 0, 0, 0)
+    const todayStart = startOfDay(now).toISOString()
+    const monthStart = startOfMonth(now).toISOString()
+    const todayMidnight = new Date(); todayMidnight.setHours(0, 0, 0, 0)
 
+    // Citas próximas (desde hoy)
     const { data: appts } = await supabase
       .from('appointments')
-      .select('id, start_time, end_time, status, notes, customer:customers(name, phone), service:services(name, duration_minutes)')
+      .select('id, start_time, end_time, status, notes, customer:customers(name, phone), service:services(name, duration_minutes, price)')
       .eq('barber_id', barberData.id)
       .neq('status', 'cancelled')
-      .gte('start_time', now.toISOString())
+      .gte('start_time', todayMidnight.toISOString())
       .order('start_time', { ascending: true })
 
     setAppointments((appts as unknown as Appointment[]) ?? [])
+
+    // Ingresos: citas ya pasadas (start_time <= now) y no canceladas
+    const [todayEarned, monthEarned] = await Promise.all([
+      supabase
+        .from('appointments')
+        .select('service:services(price)')
+        .eq('barber_id', barberData.id)
+        .gte('start_time', todayStart)
+        .lte('start_time', now.toISOString())
+        .neq('status', 'cancelled'),
+      supabase
+        .from('appointments')
+        .select('service:services(price)')
+        .eq('barber_id', barberData.id)
+        .gte('start_time', monthStart)
+        .lte('start_time', now.toISOString())
+        .neq('status', 'cancelled'),
+    ])
+
+    const sumPrices = (data: unknown[] | null) =>
+      (data ?? []).reduce((acc, row: unknown) => {
+        const r = row as { service?: { price?: number } | null }
+        return acc + (r.service?.price ?? 0)
+      }, 0)
+
+    setEarnedToday(sumPrices(todayEarned.data))
+    setEarnedMonth(sumPrices(monthEarned.data))
     setLoading(false)
   }
 
@@ -117,7 +149,7 @@ export default function BarberDashboard() {
       </div>
 
       {/* Resumen */}
-      <div className="grid grid-cols-2 gap-3 mb-6">
+      <div className="grid grid-cols-2 gap-3 mb-3">
         <div className="card p-4">
           <p className="text-text-muted text-xs mb-1">Citas hoy</p>
           <p className="text-3xl font-bold text-gold">
@@ -129,6 +161,18 @@ export default function BarberDashboard() {
           <p className="text-3xl font-bold text-text-primary">
             {appointments.filter(a => !isToday(parseISO(a.start_time))).length}
           </p>
+        </div>
+      </div>
+
+      {/* Ingresos */}
+      <div className="grid grid-cols-2 gap-3 mb-6">
+        <div className="card p-4">
+          <p className="text-text-muted text-xs mb-1">Ganado hoy</p>
+          <p className="text-2xl font-bold text-green-400">{formatPrice(earnedToday)}</p>
+        </div>
+        <div className="card p-4">
+          <p className="text-text-muted text-xs mb-1">Ganado este mes</p>
+          <p className="text-2xl font-bold text-green-400">{formatPrice(earnedMonth)}</p>
         </div>
       </div>
 
@@ -196,16 +240,6 @@ export default function BarberDashboard() {
                         >
                           <Check size={14} />
                           Completar
-                        </button>
-                      )}
-                      {appt.status === 'confirmed' && (
-                        <button
-                          onClick={() => updateStatus(appt.id, 'cancelled')}
-                          disabled={!!actionLoading}
-                          className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-yellow-900/20 text-yellow-500 text-xs font-medium hover:bg-yellow-900/30 transition-colors disabled:opacity-50"
-                        >
-                          <X size={14} />
-                          Cancelar
                         </button>
                       )}
                       <button
