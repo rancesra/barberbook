@@ -225,23 +225,6 @@ export default async function AdminDashboard() {
         )}
       </div>
 
-      {/* Accesos rápidos */}
-      <div className="grid grid-cols-2 gap-3 mt-6">
-        <Link href="/admin/servicios" className="card p-4 flex items-center gap-3 hover:border-border-light transition-colors">
-          <Scissors size={18} className="text-gold" />
-          <div>
-            <p className="text-text-primary text-sm font-medium">Servicios</p>
-            <p className="text-text-muted text-xs">{data.activeServices} activos</p>
-          </div>
-        </Link>
-        <Link href="/admin/horarios" className="card p-4 flex items-center gap-3 hover:border-border-light transition-colors">
-          <Clock size={18} className="text-gold" />
-          <div>
-            <p className="text-text-primary text-sm font-medium">Mi horario</p>
-            <p className="text-text-muted text-xs">Editar disponibilidad</p>
-          </div>
-        </Link>
-      </div>
     </div>
   )
 }

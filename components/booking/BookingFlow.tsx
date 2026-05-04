@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { Check, Edit2, ChevronLeft, Scissors } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -85,6 +86,9 @@ export function BookingFlow({
 }: BookingFlowProps) {
   // Siempre usar el primer barbero (Andrés es el único)
   const defaultBarberId = initialBarberId ?? barbers[0]?.id ?? null
+
+  const searchParams = useSearchParams()
+  const returnToAdmin = searchParams.get('from') === 'admin'
 
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null)
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
@@ -218,6 +222,7 @@ export function BookingFlow({
             selectedSlot={selectedSlot}
             customerName={customerData.name}
             onBookAnother={handleBookAnother}
+            returnToAdmin={returnToAdmin}
           />
         </div>
       </div>
