@@ -18,10 +18,10 @@ import { cn } from '@/lib/utils'
 const NAV_ITEMS = [
   { href: '/admin',              label: 'Dashboard',     icon: LayoutDashboard, exact: true },
   { href: '/admin/reservas',     label: 'Reservas',      icon: Calendar },
-  { href: '/admin/barberos',     label: 'Barberos',      icon: Users },
   { href: '/admin/servicios',    label: 'Servicios',     icon: Scissors },
   { href: '/admin/horarios',     label: 'Horarios',      icon: Clock },
   { href: '/admin/suscripciones',label: 'Suscripciones', icon: Crown },
+  { href: '/admin/barberos',     label: 'Barberos',      icon: Users },
   { href: '/admin/configuracion',label: 'Config',        icon: Settings },
 ]
 
@@ -52,8 +52,8 @@ export function AdminSidebar() {
               <Scissors size={16} className="text-gold" />
             </div>
             <div>
-              <p className="font-bold text-text-primary text-sm">BarberBook</p>
-              <p className="text-text-muted text-xs">Panel Admin</p>
+              <p className="font-bold text-text-primary text-sm">Artist Studio</p>
+              <p className="text-text-muted text-xs">Panel</p>
             </div>
           </div>
         </div>

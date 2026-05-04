@@ -1,7 +1,16 @@
+import type { Metadata } from 'next'
 import { AdminSidebar } from '@/components/admin/AdminSidebar'
 
-// La protección de rutas la maneja el middleware.ts
-// El layout solo agrega la estructura visual del panel admin
+export const metadata: Metadata = {
+  title: 'Artist Studio — Panel',
+  manifest: '/manifest-admin.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Artist Panel',
+  },
+}
+
 export default function AdminLayout({
   children,
 }: {

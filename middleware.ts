@@ -26,15 +26,14 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
+  // Redirigir /barbero/* → /admin (fusionado en un solo panel)
+  if (pathname.startsWith('/barbero')) {
+    return NextResponse.redirect(new URL('/admin', request.url))
+  }
+
   if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
     if (!user) {
       return NextResponse.redirect(new URL('/admin/login', request.url))
-    }
-  }
-
-  if (pathname.startsWith('/barbero') && pathname !== '/barbero/login') {
-    if (!user) {
-      return NextResponse.redirect(new URL('/barbero/login', request.url))
     }
   }
 

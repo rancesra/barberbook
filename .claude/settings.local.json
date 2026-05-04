@@ -14,7 +14,12 @@
       "WebFetch(domain:www.workana.com)",
       "WebFetch(domain:docs.sent.dm)",
       "Bash(npm install *)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(git commit -m 'feat: muestra foto y perfil de Andres en el flujo de reserva *)",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "mcp__Claude_in_Chrome__browser_batch"
     ]
   }
 }

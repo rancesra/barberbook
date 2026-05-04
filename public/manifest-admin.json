@@ -1,0 +1,22 @@
+{
+  "name": "Artist Studio — Panel",
+  "short_name": "Artist Panel",
+  "description": "Panel de gestión de Artist Studio",
+  "start_url": "/admin",
+  "display": "standalone",
+  "background_color": "#0E0E0E",
+  "theme_color": "#0E0E0E",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/logo.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "/logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}
