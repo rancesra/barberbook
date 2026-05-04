@@ -1,7 +1,8 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
-import { Check, Edit2, ChevronLeft } from 'lucide-react'
+import { Check, Edit2, ChevronLeft, Scissors } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { ServiceSelector } from './ServiceSelector'
 import { DateSelector } from './DateSelector'
 import { TimeSelector } from './TimeSelector'
@@ -242,6 +243,37 @@ export function BookingFlow({
       </div>
 
       <div className="max-w-lg mx-auto px-4 py-6 pb-24 space-y-2">
+
+        {/* Tarjeta de Andrés */}
+        {selectedBarber && (
+          <div className="flex items-center gap-4 p-4 rounded-2xl border border-gold/20 bg-gold/5 mb-2">
+            <div className="flex-shrink-0">
+              {selectedBarber.photo_url ? (
+                <Image
+                  src={selectedBarber.photo_url}
+                  alt={selectedBarber.name}
+                  width={64}
+                  height={64}
+                  className="rounded-xl object-cover w-16 h-16"
+                />
+              ) : (
+                <div className="w-16 h-16 rounded-xl bg-bg-tertiary flex items-center justify-center">
+                  <Scissors size={24} className="text-gold" />
+                </div>
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[11px] text-text-muted uppercase tracking-wide mb-0.5">Tu barbero</p>
+              <p className="font-bold text-text-primary text-base leading-tight">{selectedBarber.name}</p>
+              {selectedBarber.specialty && (
+                <p className="text-gold text-xs mt-0.5">{selectedBarber.specialty}</p>
+              )}
+              {selectedBarber.description && (
+                <p className="text-text-muted text-xs mt-1 line-clamp-1">{selectedBarber.description}</p>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Error global */}
         {error && (
