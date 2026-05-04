@@ -2,50 +2,68 @@
 import { useEffect, useState } from 'react'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Phone, MessageCircle, Check, Trash2 } from 'lucide-react'
+import { Phone, MessageCircle, Check, Trash2, Plus } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { buildWhatsAppLink } from '@/lib/utils'
+import Link from 'next/link'
 
 interface Appointment {
   id: string
   start_time: string
-  end_time: string
   status: string
   notes: string | null
-  barber: { name: string } | null
   service: { name: string; duration_minutes: number } | null
-  customer: { name: string; phone: string; email: string | null } | null
+  customer: { name: string; phone: string } | null
 }
 
 const STATUS_LABELS: Record<string, string> = {
-  confirmed: 'Confirmada',
-  cancelled: 'Cancelada',
-  completed: 'Completada',
-  no_show: 'No asistió',
+  confirmed:    'Confirmada',
+  cancelled:    'Cancelada',
+  completed:    'Completada',
+  no_show:      'No asistió',
   sync_pending: 'Pendiente',
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  confirmed: 'text-green-400 bg-green-900/30',
-  cancelled: 'text-red-400 bg-red-900/20',
-  completed: 'text-blue-400 bg-blue-900/20',
-  no_show: 'text-yellow-400 bg-yellow-900/20',
+  confirmed:    'text-green-400 bg-green-900/30',
+  cancelled:    'text-red-400 bg-red-900/20',
+  completed:    'text-blue-400 bg-blue-900/20',
+  no_show:      'text-yellow-400 bg-yellow-900/20',
   sync_pending: 'text-text-muted bg-bg-tertiary',
 }
 
 export default function ReservasPage() {
+  const [barberId, setBarberId] = useState<string | null>(null)
   const [appointments, setAppointments] = useState<Appointment[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('all')
 
   const load = async () => {
     const supabase = createClient()
+
+    // Obtener barber_id de Andrés (primer barbero activo)
+    let bid = barberId
+    if (!bid) {
+      const { data: barber } = await supabase
+        .from('barbers')
+        .select('id')
+        .eq('is_active', true)
+        .order('sort_order')
+        .limit(1)
+        .single()
+      if (!barber) { setLoading(false); return }
+      bid = barber.id
+      setBarberId(bid)
+    }
+
     const { data } = await supabase
       .from('appointments')
-      .select('*, barber:barbers(name), service:services(name, duration_minutes), customer:customers(name, phone, email)')
+      .select('id, start_time, status, notes, service:services(name, duration_minutes), customer:customers(name, phone)')
+      .eq('barber_id', bid)
       .order('start_time', { ascending: false })
-      .limit(200)
-    setAppointments(data ?? [])
+      .limit(300)
+
+    setAppointments((data as unknown as Appointment[]) ?? [])
     setLoading(false)
   }
 
@@ -77,30 +95,40 @@ export default function ReservasPage() {
   )
 
   return (
-    <div className="p-6 max-w-6xl">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-6 max-w-4xl">
+      <div className="flex items-start justify-between mb-6 gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">Reservas</h1>
-          <p className="text-text-secondary text-sm mt-1">{appointments.length} reservas registradas</p>
+          <h1 className="text-2xl font-bold text-text-primary">Mis reservas</h1>
+          <p className="text-text-secondary text-sm mt-1">{appointments.length} reservas en total</p>
         </div>
-        {/* Filtro */}
-        <div className="flex gap-2 flex-wrap">
-          {['all','confirmed','completed','cancelled'].map(s => (
-            <button
-              key={s}
-              onClick={() => setFilter(s)}
-              className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-colors ${filter === s ? 'bg-gold text-bg-primary' : 'bg-bg-secondary text-text-secondary hover:text-text-primary'}`}
-            >
-              {s === 'all' ? 'Todas' : STATUS_LABELS[s]}
-            </button>
-          ))}
+        <div className="flex items-center gap-3 flex-wrap">
+          {/* Filtros */}
+          <div className="flex gap-2 flex-wrap">
+            {['all','confirmed','completed','cancelled'].map(s => (
+              <button
+                key={s}
+                onClick={() => setFilter(s)}
+                className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-colors ${filter === s ? 'bg-gold text-bg-primary' : 'bg-bg-secondary text-text-secondary hover:text-text-primary'}`}
+              >
+                {s === 'all' ? 'Todas' : STATUS_LABELS[s]}
+              </button>
+            ))}
+          </div>
+          {/* Nueva cita */}
+          <Link
+            href="/agendar"
+            className="flex items-center gap-1.5 bg-gold text-bg-primary text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-gold-light transition-colors"
+          >
+            <Plus size={14} />
+            Nueva cita
+          </Link>
         </div>
       </div>
 
       <div className="space-y-3">
         {filtered.map((appt) => {
           const startDate = parseISO(appt.start_time)
-          const waMsg = `Hola ${appt.customer?.name}, te recordamos tu cita para el ${format(startDate, "d 'de' MMMM", { locale: es })} a las ${format(startDate, 'h:mm a')}.`
+          const waMsg = `Hola ${appt.customer?.name}, te recordamos tu cita el ${format(startDate, "d 'de' MMMM", { locale: es })} a las ${format(startDate, 'h:mm a')}.`
           const waLink = appt.customer?.phone ? buildWhatsAppLink(appt.customer.phone, waMsg) : null
 
           return (
@@ -114,7 +142,6 @@ export default function ReservasPage() {
                     </span>
                   </div>
                   <div className="flex flex-wrap gap-3 text-xs text-text-muted">
-                    <span>✂️ {appt.barber?.name}</span>
                     <span>📋 {appt.service?.name}</span>
                     <span>📅 {format(startDate, "d MMM yyyy", { locale: es })} · {format(startDate, 'h:mm a')}</span>
                     {appt.customer?.phone && (
@@ -124,7 +151,6 @@ export default function ReservasPage() {
                   {appt.notes && <p className="text-xs text-text-muted mt-1.5 italic">"{appt.notes}"</p>}
                 </div>
 
-                {/* Acciones */}
                 <div className="flex items-center gap-1.5 flex-shrink-0">
                   {waLink && (
                     <a href={waLink} target="_blank" rel="noopener noreferrer"
@@ -150,7 +176,13 @@ export default function ReservasPage() {
 
         {filtered.length === 0 && (
           <div className="card p-12 text-center">
-            <p className="text-text-secondary">No hay reservas {filter !== 'all' ? STATUS_LABELS[filter].toLowerCase() + 's' : ''}</p>
+            <p className="text-text-secondary mb-4">
+              No hay reservas {filter !== 'all' ? STATUS_LABELS[filter].toLowerCase() + 's' : ''}
+            </p>
+            <Link href="/agendar" className="inline-flex items-center gap-1.5 text-gold text-sm font-medium hover:text-gold-light">
+              <Plus size={14} />
+              Agregar cita manualmente
+            </Link>
           </div>
         )}
       </div>

@@ -1,7 +1,8 @@
 export const dynamic = 'force-dynamic'
 import { createAdminClient } from '@/lib/supabase/server'
 import { format, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth } from 'date-fns'
-import { Calendar, Users, Scissors, Clock, TrendingUp, DollarSign } from 'lucide-react'
+import { es } from 'date-fns/locale'
+import { Calendar, Scissors, Clock, TrendingUp, DollarSign, Plus } from 'lucide-react'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/Badge'
 import { formatPrice } from '@/lib/utils'
@@ -16,39 +17,54 @@ async function getDashboardData() {
   const weekEnd = endOfWeek(now, { weekStartsOn: 1 }).toISOString()
   const monthStart = startOfMonth(now).toISOString()
 
-  const [todayRes, weekRes, barbersRes, servicesRes, upcomingRes, earnedTodayRes, earnedMonthRes] = await Promise.all([
+  // Obtener el barbero principal (Andrés)
+  const { data: barber } = await supabase
+    .from('barbers')
+    .select('id, name')
+    .eq('is_active', true)
+    .order('sort_order')
+    .limit(1)
+    .single()
+
+  if (!barber) return null
+
+  const bid = barber.id
+
+  const [todayRes, weekRes, servicesRes, upcomingRes, earnedTodayRes, earnedMonthRes] = await Promise.all([
     supabase
       .from('appointments')
       .select('id', { count: 'exact' })
+      .eq('barber_id', bid)
       .gte('start_time', todayStart)
       .lte('start_time', todayEnd)
       .neq('status', 'cancelled'),
     supabase
       .from('appointments')
       .select('id', { count: 'exact' })
+      .eq('barber_id', bid)
       .gte('start_time', weekStart)
       .lte('start_time', weekEnd)
       .neq('status', 'cancelled'),
-    supabase.from('barbers').select('id', { count: 'exact' }).eq('is_active', true),
     supabase.from('services').select('id', { count: 'exact' }).eq('is_active', true),
     supabase
       .from('appointments')
-      .select('*, barber:barbers(name), service:services(name), customer:customers(name, phone)')
+      .select('*, service:services(name), customer:customers(name, phone)')
+      .eq('barber_id', bid)
       .gte('start_time', now.toISOString())
       .neq('status', 'cancelled')
       .order('start_time', { ascending: true })
       .limit(8),
-    // Ganado hoy: citas ya pasadas hoy (start_time <= now) y no canceladas
     supabase
       .from('appointments')
       .select('service:services(price)')
+      .eq('barber_id', bid)
       .gte('start_time', todayStart)
       .lte('start_time', now.toISOString())
       .neq('status', 'cancelled'),
-    // Ganado este mes: citas ya pasadas en el mes y no canceladas
     supabase
       .from('appointments')
       .select('service:services(price)')
+      .eq('barber_id', bid)
       .gte('start_time', monthStart)
       .lte('start_time', now.toISOString())
       .neq('status', 'cancelled'),
@@ -63,9 +79,9 @@ async function getDashboardData() {
   }
 
   return {
+    barberName: barber.name,
     todayCount: todayRes.count ?? 0,
     weekCount: weekRes.count ?? 0,
-    activeBarbers: barbersRes.count ?? 0,
     activeServices: servicesRes.count ?? 0,
     upcoming: upcomingRes.data ?? [],
     earnedToday: sumPrices(earnedTodayRes.data),
@@ -96,7 +112,6 @@ function StatCard({ label, value, icon, sub, href }: StatCardProps) {
       </div>
     </div>
   )
-
   if (href) return <Link href={href}>{content}</Link>
   return content
 }
@@ -104,19 +119,36 @@ function StatCard({ label, value, icon, sub, href }: StatCardProps) {
 export default async function AdminDashboard() {
   const data = await getDashboardData()
 
+  if (!data) {
+    return (
+      <div className="p-6 flex items-center justify-center min-h-[60vh]">
+        <p className="text-text-secondary">No hay barbero configurado.</p>
+      </div>
+    )
+  }
+
   return (
-    <div className="p-6 max-w-6xl">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-text-primary">Dashboard</h1>
-        <p className="text-text-secondary text-sm mt-1">
-          {format(new Date(), "EEEE d 'de' MMMM, yyyy")}
-        </p>
+    <div className="p-6 max-w-4xl">
+      <div className="flex items-start justify-between mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-text-primary">Hola, {data.barberName} 👋</h1>
+          <p className="text-text-secondary text-sm mt-1 capitalize">
+            {format(new Date(), "EEEE d 'de' MMMM, yyyy", { locale: es })}
+          </p>
+        </div>
+        <Link
+          href="/agendar"
+          className="flex items-center gap-2 bg-gold text-bg-primary text-sm font-bold px-4 py-2.5 rounded-xl hover:bg-gold-light transition-colors"
+        >
+          <Plus size={16} />
+          Nueva cita
+        </Link>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      {/* Stats citas */}
+      <div className="grid grid-cols-2 gap-4 mb-4">
         <StatCard
-          label="Citas de hoy"
+          label="Citas hoy"
           value={data.todayCount}
           icon={<Calendar size={20} />}
           href="/admin/reservas"
@@ -125,35 +157,23 @@ export default async function AdminDashboard() {
           label="Esta semana"
           value={data.weekCount}
           icon={<TrendingUp size={20} />}
-          sub="citas confirmadas"
-        />
-        <StatCard
-          label="Barberos activos"
-          value={data.activeBarbers}
-          icon={<Users size={20} />}
-          href="/admin/barberos"
-        />
-        <StatCard
-          label="Servicios"
-          value={data.activeServices}
-          icon={<Scissors size={20} />}
-          href="/admin/servicios"
+          sub="citas agendadas"
         />
       </div>
 
-      {/* Ingresos */}
+      {/* Stats ingresos */}
       <div className="grid grid-cols-2 gap-4 mb-8">
         <StatCard
           label="Ganado hoy"
           value={formatPrice(data.earnedToday)}
           icon={<DollarSign size={20} />}
-          sub="citas completadas hoy"
+          sub="citas ya pasadas"
         />
         <StatCard
           label="Ganado este mes"
           value={formatPrice(data.earnedMonth)}
           icon={<DollarSign size={20} />}
-          sub="citas completadas en el mes"
+          sub="citas ya pasadas"
         />
       </div>
 
@@ -170,14 +190,17 @@ export default async function AdminDashboard() {
           <div className="px-5 py-12 text-center">
             <Clock size={32} className="text-text-muted mx-auto mb-3" />
             <p className="text-text-secondary">No hay citas próximas</p>
+            <Link href="/agendar" className="inline-flex items-center gap-1.5 text-gold text-sm font-medium mt-4 hover:text-gold-light">
+              <Plus size={14} />
+              Agregar cita
+            </Link>
           </div>
         ) : (
           <div className="divide-y divide-border">
             {data.upcoming.map((appt: Record<string, unknown>) => (
-              <Link
+              <div
                 key={appt.id as string}
-                href={`/admin/reservas?id=${appt.id}`}
-                className="flex items-center gap-4 px-5 py-3.5 hover:bg-bg-secondary/50 transition-colors"
+                className="flex items-center gap-4 px-5 py-3.5"
               >
                 <div className="flex-shrink-0 text-center w-14">
                   <p className="text-gold text-sm font-bold">
@@ -192,14 +215,32 @@ export default async function AdminDashboard() {
                     {(appt.customer as Record<string, string>)?.name}
                   </p>
                   <p className="text-text-muted text-xs truncate">
-                    {(appt.barber as Record<string, string>)?.name} · {(appt.service as Record<string, string>)?.name}
+                    {(appt.service as Record<string, string>)?.name}
                   </p>
                 </div>
                 <Badge variant={appt.status as AppointmentStatus} />
-              </Link>
+              </div>
             ))}
           </div>
         )}
+      </div>
+
+      {/* Accesos rápidos */}
+      <div className="grid grid-cols-2 gap-3 mt-6">
+        <Link href="/admin/servicios" className="card p-4 flex items-center gap-3 hover:border-border-light transition-colors">
+          <Scissors size={18} className="text-gold" />
+          <div>
+            <p className="text-text-primary text-sm font-medium">Servicios</p>
+            <p className="text-text-muted text-xs">{data.activeServices} activos</p>
+          </div>
+        </Link>
+        <Link href="/admin/horarios" className="card p-4 flex items-center gap-3 hover:border-border-light transition-colors">
+          <Clock size={18} className="text-gold" />
+          <div>
+            <p className="text-text-primary text-sm font-medium">Mi horario</p>
+            <p className="text-text-muted text-xs">Editar disponibilidad</p>
+          </div>
+        </Link>
       </div>
     </div>
   )

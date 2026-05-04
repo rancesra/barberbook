@@ -60,7 +60,7 @@ export default function EditarHorariosPage() {
         await supabase.from('barber_working_hours').insert(payload)
       }
     }
-    router.push('/admin/horarios')
+    router.push('/admin')
   }
 
   if (loading) return <div className="p-6 text-text-muted text-sm">Cargando...</div>
@@ -68,8 +68,8 @@ export default function EditarHorariosPage() {
   return (
     <div className="p-6 max-w-2xl">
       <div className="flex items-center gap-3 mb-6">
-        <Link href="/admin/horarios" className="text-text-muted hover:text-text-secondary text-sm">← Volver</Link>
-        <h1 className="text-2xl font-bold text-text-primary">Horarios — {barberName}</h1>
+        <Link href="/admin" className="text-text-muted hover:text-text-secondary text-sm">← Volver</Link>
+        <h1 className="text-2xl font-bold text-text-primary">Mi horario</h1>
       </div>
 
       <div className="card divide-y divide-border">
