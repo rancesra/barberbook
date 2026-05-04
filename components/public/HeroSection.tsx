@@ -69,7 +69,7 @@ export function HeroSection({ barbershop }: HeroSectionProps) {
         </h1>
 
         <p className="text-text-secondary text-base mb-10 max-w-xs mx-auto">
-          Reserva con tu barbero favorito en segundos
+          Agenda tu cita con Andrés en segundos
         </p>
 
         {/* CTA */}

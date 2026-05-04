@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/Button'
 export interface CustomerFormValues {
   name: string
   phone: string
-  email: string
   notes: string
 }
 
@@ -24,7 +23,6 @@ export function CustomerForm({ defaultValues, onSubmit, isLoading }: CustomerFor
     formState: { errors },
   } = useForm<CustomerFormValues>({ defaultValues })
 
-  // Cuando lleguen datos pre-rellenados (ej: del usuario logueado), actualizar el form
   useEffect(() => {
     if (defaultValues && Object.keys(defaultValues).some(k => defaultValues[k as keyof typeof defaultValues])) {
       reset(defaultValues)
@@ -77,30 +75,6 @@ export function CustomerForm({ defaultValues, onSubmit, isLoading }: CustomerFor
           </div>
           {errors.phone && (
             <p className="text-red-400 text-xs mt-1">{errors.phone.message}</p>
-          )}
-        </div>
-
-        {/* Correo (opcional) */}
-        <div>
-          <label className="label">
-            Correo electrónico{' '}
-            <span className="text-text-muted font-normal">(opcional)</span>
-          </label>
-          <input
-            type="email"
-            placeholder="tu@correo.com"
-            autoComplete="email"
-            inputMode="email"
-            className="input-field"
-            {...register('email', {
-              pattern: {
-                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: 'Correo inválido',
-              },
-            })}
-          />
-          {errors.email && (
-            <p className="text-red-400 text-xs mt-1">{errors.email.message}</p>
           )}
         </div>
 

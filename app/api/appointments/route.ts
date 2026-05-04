@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { addMinutes, parseISO } from 'date-fns'
+import { addMinutes, parseISO, format } from 'date-fns'
+import { es } from 'date-fns/locale'
 import { createAdminClient } from '@/lib/supabase/server'
 import { calculateAvailability } from '@/lib/availability'
-import { createCalendarEvent } from '@/lib/google-calendar'
+import { sendWhatsAppReminder } from '@/lib/sent'
 import { z } from 'zod'
 
 const CreateAppointmentSchema = z.object({
@@ -12,7 +13,6 @@ const CreateAppointmentSchema = z.object({
   customer: z.object({
     name: z.string().min(2).max(255),
     phone: z.string().min(7).max(30),
-    email: z.string().email().optional(),
   }),
   start_time: z.string().datetime(),
   notes: z.string().max(500).optional(),
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
 
     const end_time = addMinutes(parseISO(start_time), service.duration_minutes).toISOString()
 
-    // 2. Verificar disponibilidad (doble check antes de crear)
+    // 2. Verificar disponibilidad (doble check)
     const [whRes, brRes, apptRes, blkRes] = await Promise.all([
       supabase.from('barber_working_hours').select('*').eq('barber_id', barber_id),
       supabase.from('barber_breaks').select('*').eq('barber_id', barber_id).eq('is_active', true),
@@ -100,15 +100,14 @@ export async function POST(request: NextRequest) {
 
     if (existingCustomer) {
       customerId = existingCustomer.id
-      // Actualizar nombre si cambió
       await supabase
         .from('customers')
-        .update({ name: customer.name, email: customer.email ?? null })
+        .update({ name: customer.name })
         .eq('id', customerId)
     } else {
       const { data: newCustomer, error: customerError } = await supabase
         .from('customers')
-        .insert({ name: customer.name, phone: customer.phone, email: customer.email ?? null })
+        .insert({ name: customer.name, phone: customer.phone })
         .select('id')
         .single()
 
@@ -138,7 +137,6 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (apptError || !appointment) {
-      // Si falla por exclusión (doble reserva), devolver error amigable
       if (apptError?.code === 'P0001' || apptError?.message?.includes('overlap')) {
         return NextResponse.json(
           { success: false, error: 'Ese horario fue tomado en este momento. Por favor elige otro.' },
@@ -151,32 +149,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 5. Intentar crear evento en Google Calendar
-    if (barber.google_refresh_token) {
-      const calendarResult = await createCalendarEvent(
-        {
-          appointment,
-          barber,
-          service,
-          customer: { id: customerId, name: customer.name, phone: customer.phone, email: customer.email ?? null, created_at: '', updated_at: '' },
-          barbershop,
-        },
-        barber.google_refresh_token
-      )
-
-      if (calendarResult.success && calendarResult.eventId) {
-        await supabase
-          .from('appointments')
-          .update({ google_calendar_event_id: calendarResult.eventId })
-          .eq('id', appointment.id)
-      } else {
-        // Marcar como pendiente de sincronización sin fallar la reserva
-        await supabase
-          .from('appointments')
-          .update({ status: 'sync_pending' })
-          .eq('id', appointment.id)
-      }
-    }
+    // 5. Enviar confirmación por WhatsApp vía Sent
+    const appointmentDate = parseISO(start_time)
+    sendWhatsAppReminder({
+      phone: customer.phone,
+      customerName: customer.name,
+      date: format(appointmentDate, "EEEE d 'de' MMMM", { locale: es }),
+      time: format(appointmentDate, 'h:mm a'),
+      barberName: barber.name,
+    }).catch((err) => console.error('[Sent] Error en background:', err))
 
     return NextResponse.json({ success: true, appointment }, { status: 201 })
   } catch (error) {

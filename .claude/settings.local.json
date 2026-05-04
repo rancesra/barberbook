@@ -2,7 +2,19 @@
   "permissions": {
     "allow": [
       "mcp__Claude_in_Chrome__computer",
-      "mcp__Claude_in_Chrome__navigate"
+      "mcp__Claude_in_Chrome__navigate",
+      "WebSearch",
+      "WebFetch(domain:cangrejodigital.com)",
+      "WebFetch(domain:novuxstudio.com)",
+      "WebFetch(domain:mytechsolutionsco.com)",
+      "WebFetch(domain:andredesignmarketing.com)",
+      "WebFetch(domain:lemon.io)",
+      "WebFetch(domain:www.dolarapp.com)",
+      "WebFetch(domain:blog.strategymark.com.co)",
+      "WebFetch(domain:www.workana.com)",
+      "WebFetch(domain:docs.sent.dm)",
+      "Bash(npm install *)",
+      "Bash(git add *)"
     ]
   }
 }

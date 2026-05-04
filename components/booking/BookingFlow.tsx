@@ -2,7 +2,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Check, Edit2, ChevronLeft } from 'lucide-react'
 import Link from 'next/link'
-import { BarberSelector } from './BarberSelector'
 import { ServiceSelector } from './ServiceSelector'
 import { DateSelector } from './DateSelector'
 import { TimeSelector } from './TimeSelector'
@@ -12,8 +11,6 @@ import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { formatPrice, formatDuration } from '@/lib/utils'
-import { useUser } from '@/hooks/useUser'
-import { createClient } from '@/lib/supabase/client'
 import type {
   Barbershop,
   Barber,
@@ -27,10 +24,6 @@ interface BookingFlowProps {
   barbers: Barber[]
   services: Service[]
   initialBarberId?: string
-}
-
-interface AvailabilityState {
-  [barberId: string]: DayAvailability[]
 }
 
 // Chip de selección completada
@@ -89,12 +82,13 @@ export function BookingFlow({
   services,
   initialBarberId,
 }: BookingFlowProps) {
-  const { user } = useUser()
-  const [selectedBarberId, setSelectedBarberId] = useState<string | null>(initialBarberId ?? null)
+  // Siempre usar el primer barbero (Andrés es el único)
+  const defaultBarberId = initialBarberId ?? barbers[0]?.id ?? null
+
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null)
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null)
-  const [availability, setAvailability] = useState<AvailabilityState>({})
+  const [availability, setAvailability] = useState<DayAvailability[]>([])
   const [loadingAvailability, setLoadingAvailability] = useState(false)
   const [isConfirming, setIsConfirming] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -102,97 +96,46 @@ export function BookingFlow({
   const [customerData, setCustomerData] = useState<CustomerFormValues | null>(null)
   const [savedCustomer, setSavedCustomer] = useState<Partial<CustomerFormValues> | null>(null)
 
-  // Cuando el usuario está logueado, buscar sus datos anteriores
+  // Cargar datos previos del cliente desde localStorage
   useEffect(() => {
-    if (!user) return
-    const googleName = user.user_metadata?.name ?? ''
-    const googleEmail = user.email ?? ''
-
-    // 1. Pre-rellenar con datos de Google inmediatamente
-    const base = { name: googleName, email: googleEmail }
-
-    // 2. Revisar localStorage por si ya agendó antes
-    const stored = localStorage.getItem('barberbook_customer')
-    if (stored) {
-      try {
+    try {
+      const stored = localStorage.getItem('barberbook_customer')
+      if (stored) {
         const parsed = JSON.parse(stored)
-        setSavedCustomer({ ...base, ...parsed })
-        return
-      } catch {}
-    }
-
-    setSavedCustomer(base)
-
-    // 3. Intentar buscar en BD
-    if (!googleEmail) return
-    createClient()
-      .from('customers')
-      .select('name, phone, email')
-      .eq('email', googleEmail)
-      .not('phone', 'is', null)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (data?.phone) {
-          const full = { name: data.name ?? googleName, phone: data.phone, email: data.email ?? googleEmail }
-          setSavedCustomer(full)
-          localStorage.setItem('barberbook_customer', JSON.stringify({ phone: data.phone, name: data.name }))
+        if (parsed?.phone || parsed?.name) {
+          setSavedCustomer(parsed)
         }
-      })
-  }, [user])
+      }
+    } catch {}
+  }, [])
 
-  // Refs para auto-scroll a cada nueva sección
-  const serviceRef = useRef<HTMLDivElement>(null)
+  // Refs para auto-scroll
   const dateRef = useRef<HTMLDivElement>(null)
   const timeRef = useRef<HTMLDivElement>(null)
   const formRef = useRef<HTMLDivElement>(null)
 
-  const selectedBarber = barbers.find((b) => b.id === selectedBarberId) ?? null
+  const selectedBarber = barbers.find((b) => b.id === defaultBarberId) ?? null
   const selectedService = services.find((s) => s.id === selectedServiceId) ?? null
-  const currentDays = selectedBarberId ? availability[selectedBarberId] ?? [] : []
-  const currentDaySlots = currentDays.find((d) => d.date === selectedDate)?.slots ?? []
+  const currentDaySlots = availability.find((d) => d.date === selectedDate)?.slots ?? []
 
-  // Auto-scroll suave a nueva sección
   const scrollTo = (ref: React.RefObject<HTMLDivElement>) => {
     setTimeout(() => {
       ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }, 100)
   }
 
-  // Cargar disponibilidad para todos los barberos (preview en selector)
+  // Cargar disponibilidad cuando cambia servicio
   useEffect(() => {
-    const firstService = services[0]
-    if (!firstService) return
-    barbers.forEach((barber) => {
-      if (availability[barber.id]) return
-      fetch(`/api/availability?barberId=${barber.id}&serviceId=${firstService.id}&barbershopId=${barbershop.id}`)
-        .then((r) => r.json())
-        .then((data) => setAvailability((prev) => ({ ...prev, [barber.id]: data.days })))
-        .catch(() => {})
-    })
-  }, [barbers, barbershop.id, services]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Cargar disponibilidad real cuando cambia barbero+servicio
-  useEffect(() => {
-    if (!selectedBarberId || !selectedServiceId) return
+    if (!defaultBarberId || !selectedServiceId) return
     setLoadingAvailability(true)
     setSelectedDate(null)
     setSelectedSlot(null)
-    fetch(`/api/availability?barberId=${selectedBarberId}&serviceId=${selectedServiceId}&barbershopId=${barbershop.id}`)
+    fetch(`/api/availability?barberId=${defaultBarberId}&serviceId=${selectedServiceId}&barbershopId=${barbershop.id}`)
       .then((r) => r.json())
-      .then((data) => setAvailability((prev) => ({ ...prev, [selectedBarberId]: data.days })))
+      .then((data) => setAvailability(data.days ?? []))
       .catch(() => setError('Error cargando disponibilidad'))
       .finally(() => setLoadingAvailability(false))
-  }, [selectedBarberId, selectedServiceId, barbershop.id])
-
-  const handleBarberSelect = (barberId: string) => {
-    setSelectedBarberId(barberId)
-    setSelectedServiceId(null)
-    setSelectedDate(null)
-    setSelectedSlot(null)
-    scrollTo(serviceRef)
-  }
+  }, [selectedServiceId, defaultBarberId, barbershop.id])
 
   const handleServiceSelect = (serviceId: string) => {
     setSelectedServiceId(serviceId)
@@ -213,7 +156,7 @@ export function BookingFlow({
   }
 
   const handleFormSubmit = async (data: CustomerFormValues) => {
-    if (!selectedBarberId || !selectedServiceId || !selectedDate || !selectedSlot) return
+    if (!defaultBarberId || !selectedServiceId || !selectedDate || !selectedSlot) return
     setCustomerData(data)
     setIsConfirming(true)
     setError(null)
@@ -224,12 +167,11 @@ export function BookingFlow({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           barbershop_id: barbershop.id,
-          barber_id: selectedBarberId,
+          barber_id: defaultBarberId,
           service_id: selectedServiceId,
           customer: {
             name: data.name,
             phone: data.phone,
-            email: data.email || undefined,
           },
           start_time: selectedSlot.startTime,
           notes: data.notes || undefined,
@@ -241,6 +183,7 @@ export function BookingFlow({
         setError(result.error || 'Error al crear la cita. Intenta de nuevo.')
         return
       }
+
       // Guardar datos del cliente para próximas citas
       localStorage.setItem('barberbook_customer', JSON.stringify({ name: data.name, phone: data.phone }))
       setSuccess(true)
@@ -253,7 +196,6 @@ export function BookingFlow({
   }
 
   const handleBookAnother = () => {
-    setSelectedBarberId(null)
     setSelectedServiceId(null)
     setSelectedDate(null)
     setSelectedSlot(null)
@@ -294,7 +236,7 @@ export function BookingFlow({
           </Link>
           <div>
             <p className="text-xs text-text-muted">{barbershop.name}</p>
-            <p className="text-sm font-semibold text-text-primary">Reserva tu cita</p>
+            <p className="text-sm font-semibold text-text-primary">Reserva con Andrés</p>
           </div>
         </div>
       </div>
@@ -311,59 +253,32 @@ export function BookingFlow({
           </div>
         )}
 
-        {/* ── PASO 1: Barbero ── */}
-        {selectedBarberId ? (
-          <SelectionChip
-            label="Barbero"
-            value={selectedBarber?.name ?? ''}
-            sub={selectedBarber?.specialty ?? undefined}
-            onEdit={() => {
-              setSelectedBarberId(null)
-              setSelectedServiceId(null)
-              setSelectedDate(null)
-              setSelectedSlot(null)
-            }}
-          />
-        ) : (
-          <div>
-            <SectionTitle number={1} title="Elige tu barbero" sub="Selecciona con quién quieres tu cita" />
-            <BarberSelector
-              barbers={barbers}
-              selectedBarberId={selectedBarberId}
-              availability={availability}
-              onSelect={handleBarberSelect}
+        {/* ── PASO 1: Servicio ── */}
+        <div>
+          {selectedServiceId ? (
+            <SelectionChip
+              label="Servicio"
+              value={selectedService?.name ?? ''}
+              sub={selectedService ? `${formatDuration(selectedService.duration_minutes)} · ${formatPrice(selectedService.price)}` : undefined}
+              onEdit={() => {
+                setSelectedServiceId(null)
+                setSelectedDate(null)
+                setSelectedSlot(null)
+              }}
             />
-          </div>
-        )}
-
-        {/* ── PASO 2: Servicio ── */}
-        {selectedBarberId && (
-          <div ref={serviceRef}>
-            {selectedServiceId ? (
-              <SelectionChip
-                label="Servicio"
-                value={selectedService?.name ?? ''}
-                sub={selectedService ? `${formatDuration(selectedService.duration_minutes)} · ${formatPrice(selectedService.price)}` : undefined}
-                onEdit={() => {
-                  setSelectedServiceId(null)
-                  setSelectedDate(null)
-                  setSelectedSlot(null)
-                }}
+          ) : (
+            <div>
+              <SectionTitle number={1} title="Elige un servicio" sub="¿Qué te vamos a hacer hoy?" />
+              <ServiceSelector
+                services={services}
+                selectedServiceId={selectedServiceId}
+                onSelect={handleServiceSelect}
               />
-            ) : (
-              <div>
-                <SectionTitle number={2} title="Elige un servicio" sub="¿Qué te vamos a hacer hoy?" />
-                <ServiceSelector
-                  services={services}
-                  selectedServiceId={selectedServiceId}
-                  onSelect={handleServiceSelect}
-                />
-              </div>
-            )}
-          </div>
-        )}
+            </div>
+          )}
+        </div>
 
-        {/* ── PASO 3: Día ── */}
+        {/* ── PASO 2: Día ── */}
         {selectedServiceId && (
           <div ref={dateRef}>
             {selectedDate ? (
@@ -377,7 +292,7 @@ export function BookingFlow({
               />
             ) : (
               <div>
-                <SectionTitle number={3} title="Elige un día" sub="Próximos días disponibles" />
+                <SectionTitle number={2} title="Elige un día" sub="Próximos días disponibles" />
                 {loadingAvailability ? (
                   <div className="flex flex-col items-center py-12 gap-3">
                     <LoadingSpinner />
@@ -385,7 +300,7 @@ export function BookingFlow({
                   </div>
                 ) : (
                   <DateSelector
-                    days={currentDays}
+                    days={availability}
                     selectedDate={selectedDate}
                     onSelect={handleDateSelect}
                   />
@@ -395,7 +310,7 @@ export function BookingFlow({
           </div>
         )}
 
-        {/* ── PASO 4: Hora ── */}
+        {/* ── PASO 3: Hora ── */}
         {selectedDate && (
           <div ref={timeRef}>
             {selectedSlot ? (
@@ -406,7 +321,7 @@ export function BookingFlow({
               />
             ) : (
               <div>
-                <SectionTitle number={4} title="Elige tu hora" sub="Horarios disponibles para ese día" />
+                <SectionTitle number={3} title="Elige tu hora" sub="Horarios disponibles para ese día" />
                 <TimeSelector
                   slots={currentDaySlots}
                   selectedSlot={selectedSlot}
@@ -418,10 +333,14 @@ export function BookingFlow({
           </div>
         )}
 
-        {/* ── PASO 5: Datos + Confirmar ── */}
+        {/* ── PASO 4: Datos + Confirmar ── */}
         {selectedSlot && (
           <div ref={formRef} className="pt-2">
-            <SectionTitle number={5} title="Tus datos" sub={savedCustomer?.phone ? "Hemos rellenado tus datos automáticamente" : "Solo necesitamos lo básico"} />
+            <SectionTitle
+              number={4}
+              title="Tus datos"
+              sub={savedCustomer?.phone ? 'Hemos rellenado tus datos automáticamente' : 'Solo necesitamos lo básico'}
+            />
             <CustomerForm
               defaultValues={customerData ?? savedCustomer ?? undefined}
               onSubmit={handleFormSubmit}
