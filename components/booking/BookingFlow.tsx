@@ -235,14 +235,16 @@ export function BookingFlow({
       <div className="sticky top-0 z-10 bg-bg-primary/95 backdrop-blur border-b border-border">
         <div className="max-w-lg mx-auto px-4 py-3 flex items-center gap-3">
           <Link
-            href="/"
+            href={returnToAdmin ? '/admin' : '/'}
             className="p-1.5 -ml-1.5 rounded-xl hover:bg-bg-secondary transition-colors"
           >
             <ChevronLeft size={20} className="text-text-secondary" />
           </Link>
           <div>
             <p className="text-xs text-text-muted">{barbershop.name}</p>
-            <p className="text-sm font-semibold text-text-primary">Reserva con Andrés</p>
+            <p className="text-sm font-semibold text-text-primary">
+              {returnToAdmin ? 'Nueva cita — Panel' : 'Reserva con Andrés'}
+            </p>
           </div>
         </div>
       </div>

@@ -137,7 +137,7 @@ export default async function AdminDashboard() {
           </p>
         </div>
         <Link
-          href="/agendar"
+          href="/agendar?from=admin"
           className="flex items-center gap-2 bg-gold text-bg-primary text-sm font-bold px-4 py-2.5 rounded-xl hover:bg-gold-light transition-colors"
         >
           <Plus size={16} />
