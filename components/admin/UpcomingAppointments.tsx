@@ -56,8 +56,8 @@ export function UpcomingAppointments({ appointments, mapsUrl }: { appointments: 
     const startInTz = toZonedTime(parseISO(appt.start_time), TZ)
     const date = format(startInTz, "EEEE d 'de' MMMM", { locale: es })
     const time = format(startInTz, 'h:mm a').replace('AM','am').replace('PM','pm')
-    const mapsLine = mapsUrl ? `\n\n📍 Como llegar: ${mapsUrl}` : ''
-    const msg = `Hola ${appt.customer?.name} 👋\n\nTe recordamos tu cita en *Artist Studio* con Andres:\n\n🗓 ${date} a las *${time}*\n💈 ${appt.service?.name}${mapsLine}\n\n¡Te esperamos!`
+    const mapsLine = mapsUrl ? `\nComo llegar: ${mapsUrl}` : ''
+    const msg = `Hola, *${appt.customer?.name}*.\n\nLe recordamos su cita en *Artist Studio* con Andres:\n\nFecha: *${date}*\nHora: *${time}*\nServicio: ${appt.service?.name}${mapsLine}\n\nLe esperamos.`
     const link = buildWhatsAppLink(appt.customer!.phone, msg)
     window.open(link, '_blank')
     router.refresh()

@@ -164,7 +164,7 @@ export default function SuscripcionesPage() {
                       <a
                         href={buildWhatsAppLink(
                           sub.customer_phone,
-                          `¡Hola ${sub.customer_name}! 👋\n\nTu suscripción *${sub.plan.name}* en Artist Studio está activa.\n\n🗓 Válida hasta: *${format(parseISO(sub.expires_at), "d 'de' MMMM yyyy", { locale: es })}*\n💈 Incluye ${sub.cuts_total >= 99 ? 'cortes ilimitados' : `${sub.cuts_total} cortes al mes`}\n\n¡Gracias por ser parte de Artist Studio!`
+                          `Hola, *${sub.customer_name}*.\n\nSu suscripcion *${sub.plan.name}* en Artist Studio esta activa.\n\nValida hasta: *${format(parseISO(sub.expires_at), "d 'de' MMMM yyyy", { locale: es })}*\nIncluye: ${sub.cuts_total >= 99 ? 'cortes ilimitados' : `${sub.cuts_total} cortes al mes`}\n\nGracias por ser parte de Artist Studio.`
                         )}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -177,8 +177,8 @@ export default function SuscripcionesPage() {
                         href={buildWhatsAppLink(
                           sub.customer_phone,
                           daysLeft > 0
-                            ? `Hola ${sub.customer_name} 👋\n\nTe recordamos que tu suscripción *${sub.plan.name}* en Artist Studio vence en *${daysLeft} día${daysLeft === 1 ? '' : 's'}* (el ${format(parseISO(sub.expires_at), "d 'de' MMMM", { locale: es })}).\n\n¡Renuévala para seguir disfrutando tus beneficios! 💈`
-                            : `Hola ${sub.customer_name} 👋\n\nTu suscripción *${sub.plan.name}* en Artist Studio *venció el ${format(parseISO(sub.expires_at), "d 'de' MMMM", { locale: es })}*.\n\n¡Contáctanos para renovarla y seguir disfrutando tus beneficios! 💈`
+                            ? `Hola, *${sub.customer_name}*.\n\nLe informamos que su suscripcion *${sub.plan.name}* en Artist Studio vence en *${daysLeft} dia${daysLeft === 1 ? '' : 's'}* (el ${format(parseISO(sub.expires_at), "d 'de' MMMM", { locale: es })}).\n\nRenuvela para continuar disfrutando sus beneficios.`
+                            : `Hola, *${sub.customer_name}*.\n\nSu suscripcion *${sub.plan.name}* en Artist Studio *vencio el ${format(parseISO(sub.expires_at), "d 'de' MMMM", { locale: es })}*.\n\nComuniquese con nosotros para renovarla y continuar disfrutando sus beneficios.`
                         )}
                         target="_blank"
                         rel="noopener noreferrer"

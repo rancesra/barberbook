@@ -26,7 +26,7 @@ export function buildBookingWhatsAppMessage(params: {
   time: string
   barbershopName: string
 }): string {
-  return `Hola, soy ${params.customerName}. Confirmo mi cita en ${params.barbershopName} con ${params.barberName} para el día ${params.date} a las ${params.time}. Servicio: ${params.serviceName}.`
+  return `Hola, soy *${params.customerName}*. Confirmo mi cita en *${params.barbershopName}* con ${params.barberName} para el dia *${params.date}* a las *${params.time}*. Servicio: ${params.serviceName}.`
 }
 
 export function cn(...classes: (string | undefined | null | false)[]): string {

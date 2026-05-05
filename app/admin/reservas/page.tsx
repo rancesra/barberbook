@@ -155,7 +155,7 @@ export default function ReservasPage() {
             {items.map((appt) => {
           const startDate = parseISO(appt.start_time)
           const past = isPast(startDate)
-          const waMsg = `Hola ${appt.customer?.name}, te recordamos tu cita el ${format(startDate, "d 'de' MMMM", { locale: es })} a las ${format(startDate, 'h:mm a')}.`
+          const waMsg = `Hola, *${appt.customer?.name}*.\n\nLe recordamos su cita en *Artist Studio* con Andres:\n\nFecha: *${format(startDate, "d 'de' MMMM", { locale: es })}*\nHora: *${format(startDate, 'h:mm a')}*\nServicio: ${appt.service?.name}\n\nLe esperamos.`
           const waLink = appt.customer?.phone ? buildWhatsAppLink(appt.customer.phone, waMsg) : null
 
           return (
@@ -189,8 +189,8 @@ export default function ReservasPage() {
                       onClick={async () => {
                         if (appt.status === 'sync_pending') await updateStatus(appt.id, 'confirmed')
                         const startDate2 = parseISO(appt.start_time)
-                        const mapsLine = mapsUrl ? `\n\n📍 Como llegar: ${mapsUrl}` : ''
-                        const msg = `Hola ${appt.customer?.name} 👋\n\nTe recordamos tu cita en *Artist Studio* con Andres:\n\n🗓 ${format(startDate2, "d 'de' MMMM", { locale: es })} a las *${format(startDate2, 'h:mm a')}*\n💈 ${appt.service?.name}${mapsLine}\n\n¡Te esperamos!`
+                        const mapsLine = mapsUrl ? `\nComo llegar: ${mapsUrl}` : ''
+                        const msg = `Hola, *${appt.customer?.name}*.\n\nLe recordamos su cita en *Artist Studio* con Andres:\n\nFecha: *${format(startDate2, "d 'de' MMMM", { locale: es })}*\nHora: *${format(startDate2, 'h:mm a')}*\nServicio: ${appt.service?.name}${mapsLine}\n\nLe esperamos.`
                         window.open(buildWhatsAppLink(appt.customer!.phone, msg), '_blank')
                       }}
                       className="p-2 rounded-lg text-text-muted hover:text-whatsapp hover:bg-green-900/20 transition-colors"

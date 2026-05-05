@@ -56,7 +56,7 @@ export function BookingSuccess({
   const clientNotifMessage = customerPhone
     ? buildWhatsAppLink(
         customerPhone,
-        `Hola ${customerName} 👋 Tu cita en *${barbershop.name}* ha sido confirmada:\n\n📅 ${dateFormatted} a las *${selectedSlot.label}*\n✂️ ${service.name}\n\n¡Te esperamos!`
+        `Hola, *${customerName}*.\n\nSu cita en *${barbershop.name}* ha sido confirmada:\n\nFecha: *${dateFormatted}*\nHora: *${selectedSlot.label}*\nServicio: ${service.name}\nBarbero: Andres\n\nLe esperamos.`
       )
     : null
 
