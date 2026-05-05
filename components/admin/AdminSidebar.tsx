@@ -1,5 +1,4 @@
 'use client'
-import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard,
@@ -62,21 +61,25 @@ export function AdminSidebar() {
         <nav className="flex-1 p-3 space-y-1">
           {NAV_ITEMS.map((item) => {
             const active = isActive(item)
+            const handleNav = () => {
+              router.push(item.href)
+              router.refresh()
+            }
             return (
-              <Link
+              <button
                 key={item.href}
-                href={item.href}
+                onClick={handleNav}
                 className={cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors',
+                  'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors',
                   active
                     ? 'bg-gold/10 text-gold'
                     : 'text-text-secondary hover:text-text-primary hover:bg-bg-tertiary'
                 )}
               >
                 <item.icon size={17} />
-                <span className="flex-1">{item.label}</span>
+                <span className="flex-1 text-left">{item.label}</span>
                 {active && <ChevronRight size={14} />}
-              </Link>
+              </button>
             )
           })}
         </nav>
@@ -98,9 +101,9 @@ export function AdminSidebar() {
         {NAV_ITEMS.slice(0, 5).map((item) => {
           const active = isActive(item)
           return (
-            <Link
+            <button
               key={item.href}
-              href={item.href}
+              onClick={() => { router.push(item.href); router.refresh() }}
               className={cn(
                 'flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-colors min-w-[48px]',
                 active ? 'text-gold' : 'text-text-muted'
@@ -108,7 +111,7 @@ export function AdminSidebar() {
             >
               <item.icon size={20} />
               <span className="text-[10px] font-medium leading-tight">{item.label}</span>
-            </Link>
+            </button>
           )
         })}
         {/* Logout en móvil */}
