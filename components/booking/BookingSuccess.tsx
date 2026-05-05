@@ -112,12 +112,17 @@ export function BookingSuccess({
         ) : (
           <>
             {whatsappLink && (
-              <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="w-full">
-                <Button variant="whatsapp" fullWidth>
-                  <MessageCircle size={18} />
-                  Confirmar por WhatsApp
-                </Button>
-              </a>
+              <div className="w-full">
+                <p className="text-red-400 text-xs text-center mb-2 font-medium">
+                  ⚠️ Dale al botón para que Andrés reciba tu confirmación de cita
+                </p>
+                <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="w-full block">
+                  <Button variant="whatsapp" fullWidth>
+                    <MessageCircle size={18} />
+                    Confirmar por WhatsApp
+                  </Button>
+                </a>
+              </div>
             )}
             {mapsLink && (
               <a href={mapsLink} target="_blank" rel="noopener noreferrer" className="w-full">
