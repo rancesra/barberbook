@@ -62,7 +62,7 @@ export function HeroSection({ barbershop }: HeroSectionProps) {
             ARTIST
           </span>
           <span
-            className="translate-x-[0.15em] text-3xl sm:text-4xl tracking-[0.5em] text-white/80 drop-shadow-lg select-none leading-none"
+            className="translate-x-[0.15em] text-4xl sm:text-5xl tracking-[0.5em] text-white/80 drop-shadow-lg select-none leading-none"
             style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 300 }}
           >
             STUDIO
