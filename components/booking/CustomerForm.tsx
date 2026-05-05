@@ -73,8 +73,12 @@ export function CustomerForm({ defaultValues, onSubmit, isLoading }: CustomerFor
               })}
             />
           </div>
-          {errors.phone && (
+          {errors.phone ? (
             <p className="text-red-400 text-xs mt-1">{errors.phone.message}</p>
+          ) : (
+            <p className="text-red-400/80 text-xs mt-1">
+              ⚠️ Asegúrate de que sea tu WhatsApp — te enviaremos el recordatorio ahí
+            </p>
           )}
         </div>
 
