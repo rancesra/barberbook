@@ -1,7 +1,7 @@
 'use client'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { CheckCircle, MapPin, MessageCircle, RefreshCw, LayoutDashboard } from 'lucide-react'
+import { CheckCircle, MapPin, MessageCircle, RefreshCw, LayoutDashboard, Home } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { buildWhatsAppLink, buildBookingWhatsAppMessage } from '@/lib/utils'
 import Link from 'next/link'
@@ -14,6 +14,7 @@ interface BookingSuccessProps {
   selectedDate: string
   selectedSlot: TimeSlot
   customerName: string
+  customerPhone?: string
   onBookAnother: () => void
   returnToAdmin?: boolean
 }
@@ -25,6 +26,7 @@ export function BookingSuccess({
   selectedDate,
   selectedSlot,
   customerName,
+  customerPhone,
   onBookAnother,
   returnToAdmin,
 }: BookingSuccessProps) {
@@ -46,6 +48,14 @@ export function BookingSuccess({
   const whatsappNumber = barber.phone || barbershop.whatsapp
   const whatsappLink = whatsappNumber
     ? buildWhatsAppLink(whatsappNumber, whatsappMessage)
+    : null
+
+  // Mensaje de notificación al cliente (para cuando Andrés agenda desde el panel)
+  const clientNotifMessage = customerPhone
+    ? buildWhatsAppLink(
+        customerPhone,
+        `Hola ${customerName} 👋 Tu cita en *${barbershop.name}* ha sido confirmada:\n\n📅 ${dateFormatted} a las *${selectedSlot.label}*\n✂️ ${service.name}\n\n¡Te esperamos!`
+      )
     : null
 
   const mapsLink = barbershop.google_maps_url || null
@@ -80,6 +90,14 @@ export function BookingSuccess({
       <div className="w-full flex flex-col gap-3">
         {returnToAdmin ? (
           <>
+            {clientNotifMessage && (
+              <a href={clientNotifMessage} target="_blank" rel="noopener noreferrer" className="w-full">
+                <button className="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-500 text-white font-bold py-3 px-4 rounded-2xl transition-colors text-sm">
+                  <MessageCircle size={17} />
+                  Enviar confirmación al cliente
+                </button>
+              </a>
+            )}
             <Link href="/admin/reservas" className="w-full">
               <Button fullWidth>
                 <LayoutDashboard size={16} className="mr-2" />
@@ -113,6 +131,12 @@ export function BookingSuccess({
               <RefreshCw size={16} className="mr-2" />
               Agendar otra cita
             </Button>
+            <Link href="/" className="w-full">
+              <Button variant="ghost" fullWidth>
+                <Home size={16} className="mr-2" />
+                Volver a la página principal
+              </Button>
+            </Link>
           </>
         )}
       </div>

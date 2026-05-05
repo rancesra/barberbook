@@ -221,6 +221,7 @@ export function BookingFlow({
             selectedDate={selectedDate}
             selectedSlot={selectedSlot}
             customerName={customerData.name}
+            customerPhone={customerData.phone}
             onBookAnother={handleBookAnother}
             returnToAdmin={returnToAdmin}
           />
