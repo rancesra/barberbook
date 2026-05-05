@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { format, parseISO, isPast } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Phone, MessageCircle, Check, Trash2, Plus } from 'lucide-react'
+import { Phone, MessageCircle, Trash2, Plus } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { buildWhatsAppLink } from '@/lib/utils'
 import Link from 'next/link'
@@ -21,7 +21,7 @@ const STATUS_LABELS: Record<string, string> = {
   cancelled:    'Cancelada',
   completed:    'Completada',
   no_show:      'No asistió',
-  sync_pending: 'Pendiente',
+  sync_pending: 'No confirmada',
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -29,7 +29,7 @@ const STATUS_COLORS: Record<string, string> = {
   cancelled:    'text-red-400 bg-red-900/20',
   completed:    'text-blue-400 bg-blue-900/20',
   no_show:      'text-yellow-400 bg-yellow-900/20',
-  sync_pending: 'text-text-muted bg-bg-tertiary',
+  sync_pending: 'text-red-400 bg-red-900/20',
 }
 
 export default function ReservasPage() {
@@ -156,10 +156,18 @@ export default function ReservasPage() {
                       <MessageCircle size={16} />
                     </a>
                   )}
-                  {appt.status === 'confirmed' && !past && (
-                    <button onClick={() => updateStatus(appt.id, 'completed')}
-                      className="p-2 rounded-lg text-blue-400 hover:bg-blue-900/20 transition-colors" title="Marcar completada">
-                      <Check size={16} />
+                  {!past && appt.customer?.phone && (
+                    <button
+                      onClick={async () => {
+                        if (appt.status === 'sync_pending') await updateStatus(appt.id, 'confirmed')
+                        const startDate2 = parseISO(appt.start_time)
+                        const msg = `Hola ${appt.customer?.name} 👋 te recordamos tu cita en *Artist Studio*:\n\n📅 ${format(startDate2, "d 'de' MMMM", { locale: es })} a las *${format(startDate2, 'h:mm a')}*\n✂️ ${appt.service?.name}\n\n¡Te esperamos!`
+                        window.open(buildWhatsAppLink(appt.customer.phone, msg), '_blank')
+                      }}
+                      className="p-2 rounded-lg text-text-muted hover:text-whatsapp hover:bg-green-900/20 transition-colors"
+                      title="Recordar al cliente"
+                    >
+                      <MessageCircle size={16} />
                     </button>
                   )}
                   <button onClick={() => deleteAppointment(appt.id)}

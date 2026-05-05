@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
         customer_id: customerId,
         start_time,
         end_time,
-        status: 'confirmed',
+        status: 'sync_pending',
         notes: notes ?? null,
       })
       .select('*')

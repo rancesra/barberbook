@@ -17,6 +17,7 @@ interface BookingSuccessProps {
   customerPhone?: string
   onBookAnother: () => void
   returnToAdmin?: boolean
+  appointmentId?: string | null
 }
 
 export function BookingSuccess({
@@ -29,6 +30,7 @@ export function BookingSuccess({
   customerPhone,
   onBookAnother,
   returnToAdmin,
+  appointmentId,
 }: BookingSuccessProps) {
   const dateFormatted = format(
     parseISO(selectedDate + 'T00:00:00'),
@@ -116,12 +118,18 @@ export function BookingSuccess({
                 <p className="text-red-400 text-xs text-center mb-2 font-medium">
                   ⚠️ Dale al botón para que Andrés reciba tu confirmación de cita
                 </p>
-                <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="w-full block">
-                  <Button variant="whatsapp" fullWidth>
-                    <MessageCircle size={18} />
-                    Confirmar por WhatsApp
-                  </Button>
-                </a>
+                <button
+                  onClick={async () => {
+                    if (appointmentId) {
+                      await fetch(`/api/appointments/${appointmentId}/confirm`, { method: 'POST' }).catch(() => {})
+                    }
+                    window.open(whatsappLink, '_blank')
+                  }}
+                  className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20ba58] text-white font-bold py-3.5 px-4 rounded-2xl transition-colors text-sm"
+                >
+                  <MessageCircle size={18} />
+                  Confirmar por WhatsApp
+                </button>
               </div>
             )}
             {mapsLink && (

@@ -2,11 +2,10 @@ export const dynamic = 'force-dynamic'
 import { createAdminClient } from '@/lib/supabase/server'
 import { format, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Calendar, Scissors, Clock, TrendingUp, DollarSign, Plus } from 'lucide-react'
+import { Calendar, TrendingUp, DollarSign, Plus } from 'lucide-react'
 import Link from 'next/link'
-import { Badge } from '@/components/ui/Badge'
 import { formatPrice } from '@/lib/utils'
-import type { AppointmentStatus } from '@/types'
+import { UpcomingAppointments } from '@/components/admin/UpcomingAppointments'
 
 async function getDashboardData() {
   const supabase = createAdminClient()
@@ -186,43 +185,7 @@ export default async function AdminDashboard() {
           </Link>
         </div>
 
-        {data.upcoming.length === 0 ? (
-          <div className="px-5 py-12 text-center">
-            <Clock size={32} className="text-text-muted mx-auto mb-3" />
-            <p className="text-text-secondary">No hay citas próximas</p>
-            <Link href="/agendar" className="inline-flex items-center gap-1.5 text-gold text-sm font-medium mt-4 hover:text-gold-light">
-              <Plus size={14} />
-              Agregar cita
-            </Link>
-          </div>
-        ) : (
-          <div className="divide-y divide-border">
-            {data.upcoming.map((appt: Record<string, unknown>) => (
-              <div
-                key={appt.id as string}
-                className="flex items-center gap-4 px-5 py-3.5"
-              >
-                <div className="flex-shrink-0 text-center w-14">
-                  <p className="text-gold text-sm font-bold">
-                    {format(new Date(appt.start_time as string), 'h:mm')}
-                  </p>
-                  <p className="text-text-muted text-xs">
-                    {format(new Date(appt.start_time as string), 'a').toLowerCase()}
-                  </p>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-text-primary text-sm font-medium truncate">
-                    {(appt.customer as Record<string, string>)?.name}
-                  </p>
-                  <p className="text-text-muted text-xs truncate">
-                    {(appt.service as Record<string, string>)?.name}
-                  </p>
-                </div>
-                <Badge variant={appt.status as AppointmentStatus} />
-              </div>
-            ))}
-          </div>
-        )}
+        <UpcomingAppointments appointments={data.upcoming as any} />
       </div>
 
     </div>

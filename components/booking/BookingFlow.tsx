@@ -98,6 +98,7 @@ export function BookingFlow({
   const [isConfirming, setIsConfirming] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [appointmentId, setAppointmentId] = useState<string | null>(null)
   const [customerData, setCustomerData] = useState<CustomerFormValues | null>(null)
   const [savedCustomer, setSavedCustomer] = useState<Partial<CustomerFormValues> | null>(null)
 
@@ -192,6 +193,7 @@ export function BookingFlow({
       // Guardar datos del cliente para próximas citas
       localStorage.setItem('barberbook_customer', JSON.stringify({ name: data.name, phone: data.phone }))
       setSuccess(true)
+      setAppointmentId(result.appointment?.id ?? null)
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } catch {
       setError('Error de conexión. Verifica tu internet e intenta de nuevo.')
@@ -207,6 +209,7 @@ export function BookingFlow({
     setCustomerData(null)
     setError(null)
     setSuccess(false)
+    setAppointmentId(null)
   }
 
   // Pantalla de éxito
@@ -224,6 +227,7 @@ export function BookingFlow({
             customerPhone={customerData.phone}
             onBookAnother={handleBookAnother}
             returnToAdmin={returnToAdmin}
+            appointmentId={appointmentId}
           />
         </div>
       </div>
