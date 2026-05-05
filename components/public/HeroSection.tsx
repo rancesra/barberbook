@@ -54,15 +54,15 @@ export function HeroSection({ barbershop }: HeroSectionProps) {
       <div className="relative z-10 max-w-lg mx-auto px-4 py-20 text-center w-full">
 
         {/* Logo texto */}
-        <div className="flex flex-col items-center mb-10">
+        <div className="flex flex-col items-center gap-1 mb-10">
           <span
-            className="translate-x-[0.15em] text-7xl sm:text-8xl tracking-[0.3em] text-white drop-shadow-lg select-none leading-none"
+            className="translate-x-[0.15em] text-6xl sm:text-8xl tracking-[0.3em] text-white drop-shadow-lg select-none leading-none"
             style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 300 }}
           >
             ARTIST
           </span>
           <span
-            className="translate-x-[0.15em] text-7xl sm:text-8xl tracking-[0.3em] text-white drop-shadow-lg select-none leading-none"
+            className="translate-x-[0.15em] text-3xl sm:text-4xl tracking-[0.5em] text-white/80 drop-shadow-lg select-none leading-none"
             style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 300 }}
           >
             STUDIO
