@@ -16,7 +16,7 @@ async function getDashboardData() {
   const weekEnd = endOfWeek(now, { weekStartsOn: 1 }).toISOString()
   const monthStart = startOfMonth(now).toISOString()
 
-  // Obtener el barbero principal (Andrés)
+  // Obtener el barbero principal y la barbería
   const { data: barber } = await supabase
     .from('barbers')
     .select('id, name')
@@ -28,6 +28,12 @@ async function getDashboardData() {
   if (!barber) return null
 
   const bid = barber.id
+
+  const { data: barbershop } = await supabase
+    .from('barbershops')
+    .select('google_maps_url')
+    .limit(1)
+    .single()
 
   const [todayRes, weekRes, servicesRes, upcomingRes, earnedTodayRes, earnedMonthRes] = await Promise.all([
     supabase
@@ -85,6 +91,7 @@ async function getDashboardData() {
     upcoming: upcomingRes.data ?? [],
     earnedToday: sumPrices(earnedTodayRes.data),
     earnedMonth: sumPrices(earnedMonthRes.data),
+    mapsUrl: barbershop?.google_maps_url ?? null,
   }
 }
 
@@ -185,7 +192,7 @@ export default async function AdminDashboard() {
           </Link>
         </div>
 
-        <UpcomingAppointments appointments={data.upcoming as any} />
+        <UpcomingAppointments appointments={data.upcoming as any} mapsUrl={data.mapsUrl} />
       </div>
 
     </div>

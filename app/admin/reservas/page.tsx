@@ -38,6 +38,7 @@ export default function ReservasPage() {
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState<'upcoming' | 'past' | 'all'>('upcoming')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [mapsUrl, setMapsUrl] = useState<string | null>(null)
 
   const load = async () => {
     const supabase = createClient()
@@ -48,6 +49,9 @@ export default function ReservasPage() {
       if (!barber) { setLoading(false); return }
       bid = barber.id
       setBarberId(bid)
+      // Cargar maps url de la barbería
+      const { data: shop } = await supabase.from('barbershops').select('google_maps_url').limit(1).single()
+      if (shop?.google_maps_url) setMapsUrl(shop.google_maps_url)
     }
     const { data } = await supabase
       .from('appointments')
@@ -161,7 +165,8 @@ export default function ReservasPage() {
                       onClick={async () => {
                         if (appt.status === 'sync_pending') await updateStatus(appt.id, 'confirmed')
                         const startDate2 = parseISO(appt.start_time)
-                        const msg = `Hola ${appt.customer?.name} 👋 te recordamos tu cita en *Artist Studio*:\n\n📅 ${format(startDate2, "d 'de' MMMM", { locale: es })} a las *${format(startDate2, 'h:mm a')}*\n✂️ ${appt.service?.name}\n\n¡Te esperamos!`
+                        const mapsLine = mapsUrl ? `\n\n📍 Como llegar: ${mapsUrl}` : ''
+                        const msg = `Hola ${appt.customer?.name} 👋\n\nTe recordamos tu cita en *Artist Studio* con Andres:\n\n🗓 ${format(startDate2, "d 'de' MMMM", { locale: es })} a las *${format(startDate2, 'h:mm a')}*\n💈 ${appt.service?.name}${mapsLine}\n\n¡Te esperamos!`
                         window.open(buildWhatsAppLink(appt.customer!.phone, msg), '_blank')
                       }}
                       className="p-2 rounded-lg text-text-muted hover:text-whatsapp hover:bg-green-900/20 transition-colors"

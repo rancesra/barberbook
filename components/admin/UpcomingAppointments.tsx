@@ -39,7 +39,7 @@ function dateLabel(dateInTz: Date, todayInTz: Date): string {
   return format(dateInTz, "EEEE d 'de' MMMM", { locale: es })
 }
 
-export function UpcomingAppointments({ appointments }: { appointments: Appt[] }) {
+export function UpcomingAppointments({ appointments, mapsUrl }: { appointments: Appt[], mapsUrl?: string | null }) {
   const router = useRouter()
   const todayInTz = toZonedTime(new Date(), TZ)
 
@@ -56,7 +56,8 @@ export function UpcomingAppointments({ appointments }: { appointments: Appt[] })
     const startInTz = toZonedTime(parseISO(appt.start_time), TZ)
     const date = format(startInTz, "EEEE d 'de' MMMM", { locale: es })
     const time = format(startInTz, 'h:mm a').replace('AM','am').replace('PM','pm')
-    const msg = `Hola ${appt.customer?.name} 👋 te recordamos tu cita en *Artist Studio*:\n\n📅 ${date} a las *${time}*\n✂️ ${appt.service?.name}\n\n¡Te esperamos!`
+    const mapsLine = mapsUrl ? `\n\n📍 Como llegar: ${mapsUrl}` : ''
+    const msg = `Hola ${appt.customer?.name} 👋\n\nTe recordamos tu cita en *Artist Studio* con Andres:\n\n🗓 ${date} a las *${time}*\n💈 ${appt.service?.name}${mapsLine}\n\n¡Te esperamos!`
     const link = buildWhatsAppLink(appt.customer!.phone, msg)
     window.open(link, '_blank')
     router.refresh()
