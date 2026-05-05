@@ -1,10 +1,11 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { Crown, Plus, Check, X, Scissors } from 'lucide-react'
+import { Crown, Plus, Check, X, Scissors, MessageCircle } from 'lucide-react'
 import { format, parseISO, differenceInDays } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/Button'
+import { buildWhatsAppLink } from '@/lib/utils'
 
 interface Subscription {
   id: string
@@ -137,21 +138,58 @@ export default function SuscripcionesPage() {
                   </div>
                 </div>
 
-                {/* Cortes */}
-                <div className="text-right flex-shrink-0">
-                  <p className="text-xs text-text-muted">Cortes</p>
-                  <p className="text-lg font-bold text-text-primary">
-                    {isUnlimited ? '∞' : `${cutsLeft}`}
-                  </p>
-                  {!isUnlimited && (
-                    <p className="text-xs text-text-muted">{sub.cuts_used}/{sub.cuts_total}</p>
-                  )}
+                {/* Stats */}
+                <div className="text-right flex-shrink-0 space-y-1">
+                  <div>
+                    <p className="text-xs text-text-muted">Cortes</p>
+                    <p className="text-lg font-bold text-text-primary">
+                      {isUnlimited ? '∞' : `${cutsLeft}`}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-text-muted">Días</p>
+                    <p className={`text-lg font-bold ${daysLeft > 5 ? 'text-green-400' : daysLeft > 0 ? 'text-yellow-400' : 'text-red-400'}`}>
+                      {daysLeft > 0 ? daysLeft : 0}
+                    </p>
+                  </div>
                 </div>
               </div>
 
               {/* Acciones expandidas */}
               {selectedId === sub.id && (
                 <div className="mt-4 pt-4 border-t border-border space-y-3" onClick={e => e.stopPropagation()}>
+                  {/* WhatsApp buttons */}
+                  {sub.customer_phone && (
+                    <div className="flex gap-2">
+                      <a
+                        href={buildWhatsAppLink(
+                          sub.customer_phone,
+                          `¡Hola ${sub.customer_name}! 👋\n\nTu suscripción *${sub.plan.name}* en Artist Studio está activa.\n\n🗓 Válida hasta: *${format(parseISO(sub.expires_at), "d 'de' MMMM yyyy", { locale: es })}*\n💈 Incluye ${sub.cuts_total >= 99 ? 'cortes ilimitados' : `${sub.cuts_total} cortes al mes`}\n\n¡Gracias por ser parte de Artist Studio!`
+                        )}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-green-900/20 border border-green-800/30 text-green-400 text-xs font-medium hover:bg-green-900/30 transition-colors"
+                      >
+                        <MessageCircle size={12} />
+                        Confirmar
+                      </a>
+                      <a
+                        href={buildWhatsAppLink(
+                          sub.customer_phone,
+                          daysLeft > 0
+                            ? `Hola ${sub.customer_name} 👋\n\nTe recordamos que tu suscripción *${sub.plan.name}* en Artist Studio vence en *${daysLeft} día${daysLeft === 1 ? '' : 's'}* (el ${format(parseISO(sub.expires_at), "d 'de' MMMM", { locale: es })}).\n\n¡Renuévala para seguir disfrutando tus beneficios! 💈`
+                            : `Hola ${sub.customer_name} 👋\n\nTu suscripción *${sub.plan.name}* en Artist Studio *venció el ${format(parseISO(sub.expires_at), "d 'de' MMMM", { locale: es })}*.\n\n¡Contáctanos para renovarla y seguir disfrutando tus beneficios! 💈`
+                        )}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-yellow-900/20 border border-yellow-800/30 text-yellow-400 text-xs font-medium hover:bg-yellow-900/30 transition-colors"
+                      >
+                        <MessageCircle size={12} />
+                        Recordar ({daysLeft > 0 ? `${daysLeft}d` : 'Vencido'})
+                      </a>
+                    </div>
+                  )}
+
                   {/* Marcar corte usado */}
                   {sub.status === 'active' && (
                     <Button

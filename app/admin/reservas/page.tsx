@@ -1,11 +1,14 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { format, parseISO, isPast } from 'date-fns'
+import { format, parseISO, isPast, isSameDay, addDays } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { Phone, MessageCircle, Trash2, Plus } from 'lucide-react'
+import { toZonedTime } from 'date-fns-tz'
 import { createClient } from '@/lib/supabase/client'
 import { buildWhatsAppLink } from '@/lib/utils'
 import Link from 'next/link'
+
+const TZ = 'America/Bogota'
 
 interface Appointment {
   id: string
@@ -83,6 +86,22 @@ export default function ReservasPage() {
   if (tab === 'past')     filtered = appointments.filter(a => isPast(parseISO(a.start_time)))
   if (statusFilter !== 'all') filtered = filtered.filter(a => a.status === statusFilter)
 
+  const todayTz = toZonedTime(new Date(), TZ)
+  const grouped = (() => {
+    const groups: { label: string; items: typeof filtered }[] = []
+    for (const appt of filtered) {
+      const apptTz = toZonedTime(parseISO(appt.start_time), TZ)
+      let label: string
+      if (isSameDay(apptTz, todayTz)) label = 'Hoy'
+      else if (isSameDay(apptTz, addDays(todayTz, 1))) label = 'Mañana'
+      else label = format(apptTz, "EEEE d 'de' MMM", { locale: es })
+      const existing = groups.find(g => g.label === label)
+      if (existing) existing.items.push(appt)
+      else groups.push({ label, items: [appt] })
+    }
+    return groups
+  })()
+
   if (loading) return (
     <div className="p-6">
       <div className="animate-pulse space-y-3">
@@ -128,7 +147,12 @@ export default function ReservasPage() {
       </div>
 
       <div className="space-y-3">
-        {filtered.map((appt) => {
+        {grouped.map(({ label, items }) => (
+          <div key={label}>
+            <div className="px-1 py-2 mb-2">
+              <span className="text-xs font-semibold text-text-muted uppercase tracking-wide">{label}</span>
+            </div>
+            {items.map((appt) => {
           const startDate = parseISO(appt.start_time)
           const past = isPast(startDate)
           const waMsg = `Hola ${appt.customer?.name}, te recordamos tu cita el ${format(startDate, "d 'de' MMMM", { locale: es })} a las ${format(startDate, 'h:mm a')}.`
@@ -184,6 +208,8 @@ export default function ReservasPage() {
             </div>
           )
         })}
+          </div>
+        ))}
         {filtered.length === 0 && (
           <div className="card p-12 text-center">
             <p className="text-text-secondary">No hay reservas aquí</p>

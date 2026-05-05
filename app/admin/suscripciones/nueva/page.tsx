@@ -18,7 +18,6 @@ export default function NuevaSuscripcionPage() {
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState({
     customer_name: '',
-    customer_email: '',
     customer_phone: '',
     plan_id: '',
     starts_at: new Date().toISOString().split('T')[0],
@@ -56,8 +55,8 @@ export default function NuevaSuscripcionPage() {
       barbershop_id: barbershop?.id,
       plan_id: form.plan_id,
       customer_name: form.customer_name,
-      customer_email: form.customer_email,
-      customer_phone: form.customer_phone || null,
+      customer_email: '',
+      customer_phone: form.customer_phone ? `+57${form.customer_phone}` : null,
       cuts_used: 0,
       cuts_total: selectedPlan.cuts_per_month >= 99 ? 999 : selectedPlan.cuts_per_month,
       status: 'active',
@@ -106,24 +105,23 @@ export default function NuevaSuscripcionPage() {
         </div>
 
         <div>
-          <label className="label">Correo electrónico *</label>
-          <input
-            type="email"
-            className="input-field"
-            value={form.customer_email}
-            onChange={e => setForm(f => ({ ...f, customer_email: e.target.value }))}
-            required
-          />
-        </div>
-
-        <div>
-          <label className="label">Teléfono</label>
-          <input
-            className="input-field"
-            value={form.customer_phone}
-            onChange={e => setForm(f => ({ ...f, customer_phone: e.target.value }))}
-            placeholder="+57 300 000 0000"
-          />
+          <label className="label">Teléfono / WhatsApp *</label>
+          <div className="flex items-center gap-2">
+            <span className="text-text-muted text-sm bg-bg-tertiary border border-border rounded-xl px-3 py-2.5 flex-shrink-0">+57</span>
+            <input
+              type="tel"
+              inputMode="numeric"
+              className="input-field flex-1"
+              value={form.customer_phone}
+              placeholder="3156669991"
+              required
+              maxLength={10}
+              pattern="\d{10}"
+              title="Debe tener exactamente 10 dígitos"
+              onChange={e => setForm(f => ({ ...f, customer_phone: e.target.value.replace(/\D/g, '').slice(0, 10) }))}
+            />
+          </div>
+          <p className="text-text-muted text-xs mt-1">10 dígitos sin el 0 inicial ni el +57</p>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
