@@ -1,4 +1,5 @@
 'use client'
+import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard,
@@ -31,8 +32,7 @@ export function AdminSidebar() {
   const handleLogout = async () => {
     const supabase = createClient()
     await supabase.auth.signOut()
-    router.push('/admin/login')
-    router.refresh()
+    window.location.href = '/admin/login'
   }
 
   const isActive = (item: typeof NAV_ITEMS[0]) => {
@@ -57,29 +57,25 @@ export function AdminSidebar() {
           </div>
         </div>
 
-        {/* Nav */}
+        {/* Nav — usa Link para prefetch automático (navegación instantánea) */}
         <nav className="flex-1 p-3 space-y-1">
           {NAV_ITEMS.map((item) => {
             const active = isActive(item)
-            const handleNav = () => {
-              router.push(item.href)
-              router.refresh()
-            }
             return (
-              <button
+              <Link
                 key={item.href}
-                onClick={handleNav}
+                href={item.href}
                 className={cn(
-                  'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors',
+                  'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors',
                   active
                     ? 'bg-gold/10 text-gold'
                     : 'text-text-secondary hover:text-text-primary hover:bg-bg-tertiary'
                 )}
               >
                 <item.icon size={17} />
-                <span className="flex-1 text-left">{item.label}</span>
+                <span className="flex-1">{item.label}</span>
                 {active && <ChevronRight size={14} />}
-              </button>
+              </Link>
             )
           })}
         </nav>
@@ -101,9 +97,9 @@ export function AdminSidebar() {
         {NAV_ITEMS.slice(0, 5).map((item) => {
           const active = isActive(item)
           return (
-            <button
+            <Link
               key={item.href}
-              onClick={() => { router.push(item.href); router.refresh() }}
+              href={item.href}
               className={cn(
                 'flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-colors min-w-[48px]',
                 active ? 'text-gold' : 'text-text-muted'
@@ -111,7 +107,7 @@ export function AdminSidebar() {
             >
               <item.icon size={20} />
               <span className="text-[10px] font-medium leading-tight">{item.label}</span>
-            </button>
+            </Link>
           )
         })}
         {/* Logout en móvil */}
