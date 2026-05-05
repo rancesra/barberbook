@@ -162,7 +162,7 @@ export default function ReservasPage() {
                         if (appt.status === 'sync_pending') await updateStatus(appt.id, 'confirmed')
                         const startDate2 = parseISO(appt.start_time)
                         const msg = `Hola ${appt.customer?.name} 👋 te recordamos tu cita en *Artist Studio*:\n\n📅 ${format(startDate2, "d 'de' MMMM", { locale: es })} a las *${format(startDate2, 'h:mm a')}*\n✂️ ${appt.service?.name}\n\n¡Te esperamos!`
-                        window.open(buildWhatsAppLink(appt.customer.phone, msg), '_blank')
+                        window.open(buildWhatsAppLink(appt.customer!.phone, msg), '_blank')
                       }}
                       className="p-2 rounded-lg text-text-muted hover:text-whatsapp hover:bg-green-900/20 transition-colors"
                       title="Recordar al cliente"
