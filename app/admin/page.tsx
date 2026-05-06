@@ -1,20 +1,25 @@
 export const dynamic = 'force-dynamic'
 import { createAdminClient } from '@/lib/supabase/server'
 import { format, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth } from 'date-fns'
+import { toZonedTime, fromZonedTime } from 'date-fns-tz'
 import { es } from 'date-fns/locale'
 import { Calendar, TrendingUp, DollarSign, Plus } from 'lucide-react'
 import Link from 'next/link'
 import { formatPrice } from '@/lib/utils'
 import { UpcomingAppointments } from '@/components/admin/UpcomingAppointments'
 
+const TZ = 'America/Bogota'
+
 async function getDashboardData() {
   const supabase = createAdminClient()
   const now = new Date()
-  const todayStart = startOfDay(now).toISOString()
-  const todayEnd = endOfDay(now).toISOString()
-  const weekStart = startOfWeek(now, { weekStartsOn: 1 }).toISOString()
-  const weekEnd = endOfWeek(now, { weekStartsOn: 1 }).toISOString()
-  const monthStart = startOfMonth(now).toISOString()
+  // Calcular inicio/fin del día en hora Colombia para evitar desfase UTC
+  const nowInTz = toZonedTime(now, TZ)
+  const todayStart = fromZonedTime(startOfDay(nowInTz), TZ).toISOString()
+  const todayEnd   = fromZonedTime(endOfDay(nowInTz), TZ).toISOString()
+  const weekStart  = fromZonedTime(startOfWeek(nowInTz, { weekStartsOn: 1 }), TZ).toISOString()
+  const weekEnd    = fromZonedTime(endOfWeek(nowInTz, { weekStartsOn: 1 }), TZ).toISOString()
+  const monthStart = fromZonedTime(startOfMonth(nowInTz), TZ).toISOString()
 
   // Obtener el barbero principal y la barbería
   const { data: barber } = await supabase
