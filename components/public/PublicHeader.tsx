@@ -49,8 +49,8 @@ export function PublicHeader({ barbershop }: PublicHeaderProps) {
               className="flex items-center gap-1.5 text-gold transition-colors p-2 rounded-lg hover:bg-gold/10 sm:text-xs sm:font-medium sm:py-1.5 sm:px-3 sm:border sm:border-border sm:hover:border-gold/30"
               title="Cómo llegar"
             >
-              <MapPin size={18} className="sm:w-3.5 sm:h-3.5" />
-              <span className="hidden sm:inline">Cómo llegar</span>
+              <MapPin size={14} />
+              <span className="text-xs font-medium">Cómo llegar</span>
             </a>
           )}
 
@@ -63,8 +63,8 @@ export function PublicHeader({ barbershop }: PublicHeaderProps) {
               className="flex items-center gap-1.5 text-pink-400 transition-colors p-2 rounded-lg hover:bg-pink-500/10 sm:text-xs sm:font-medium sm:py-1.5 sm:px-3 sm:border sm:border-border sm:hover:border-pink-400/30"
               title="Instagram"
             >
-              <Instagram size={18} className="sm:w-3.5 sm:h-3.5" />
-              <span className="hidden sm:inline">Instagram</span>
+              <Instagram size={14} />
+              <span className="text-xs font-medium">Instagram</span>
             </a>
           )}
 
