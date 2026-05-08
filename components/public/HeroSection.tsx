@@ -21,8 +21,8 @@ export function HeroSection({ barbershop }: HeroSectionProps) {
         <div className="absolute inset-0 bg-[url('/fondo2.webp')] bg-cover bg-center sm:bg-[url('/fondo.webp')]" />
 
         {/* Degradado de fondo */}
-        <div className="absolute inset-0 bg-black/70" />
-        <div className="absolute inset-0 bg-gradient-to-br from-bg-primary/70 via-bg-primary/35 to-bg-primary/85" />
+        <div className="absolute inset-0 bg-black/45" />
+        <div className="absolute inset-0 bg-gradient-to-br from-bg-primary/50 via-bg-primary/20 to-bg-primary/60" />
 
         {/* Brillo dorado sutil arriba */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[250px] bg-gold/8 blur-[100px] rounded-full" />
@@ -51,16 +51,17 @@ export function HeroSection({ barbershop }: HeroSectionProps) {
       </div>
 
       {/* ── Contenido ── */}
-      <div className="relative z-10 max-w-lg mx-auto px-4 py-20 text-center w-full">
+      <div className="relative z-10 max-w-lg mx-auto px-6 pt-12 pb-16 sm:py-20 text-center w-full">
 
         {/* Logo texto */}
-        <div className="flex flex-col items-center gap-1 mb-10">
+        <div className="flex flex-col items-center mb-7 sm:mb-10">
           <span
             className="translate-x-[0.15em] text-6xl sm:text-8xl tracking-[0.3em] text-white drop-shadow-lg select-none leading-none"
             style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 300 }}
           >
             ARTIST
           </span>
+          <div className="my-2" />
           <span
             className="translate-x-[0.15em] text-4xl sm:text-5xl tracking-[0.5em] text-white/80 drop-shadow-lg select-none leading-none"
             style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 300 }}
@@ -69,29 +70,29 @@ export function HeroSection({ barbershop }: HeroSectionProps) {
           </span>
         </div>
 
-        <p className="text-text-secondary text-base mb-10 max-w-xs mx-auto">
+        <p className="text-text-secondary text-sm sm:text-base mb-7 sm:mb-10 max-w-xs mx-auto">
           Agenda tu cita con Andrés en segundos
         </p>
 
         {/* CTA */}
         <Link
           href="/agendar"
-          className="inline-flex items-center justify-center bg-gold text-bg-primary font-bold text-lg py-4 px-10 rounded-2xl hover:bg-gold-light transition-all active:scale-95 shadow-xl shadow-gold/40 ring-1 ring-gold/30 w-full sm:w-auto"
+          className="inline-flex items-center justify-center bg-gold text-bg-primary font-bold text-sm sm:text-lg py-3 sm:py-4 px-8 sm:px-10 rounded-2xl hover:bg-gold-light transition-all active:scale-95 shadow-xl shadow-gold/40 ring-1 ring-gold/30"
         >
           Agendar ahora
         </Link>
 
         {/* Info secundaria */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8 text-sm text-text-muted">
+        <div className="flex flex-col items-center justify-center gap-2.5 sm:gap-4 mt-6 sm:mt-8 text-xs sm:text-sm text-text-muted">
           {barbershop.address && (
             <div className="flex items-center gap-1.5">
-              <MapPin size={14} className="text-gold flex-shrink-0" />
+              <MapPin size={13} className="text-gold flex-shrink-0" />
               <span>{barbershop.address}</span>
             </div>
           )}
           <div className="flex items-center gap-1.5">
-            <Clock size={14} className="text-gold flex-shrink-0" />
-            <span>Lun – Sáb  8:30 am – 7:30 pm</span>
+            <Clock size={13} className="text-gold flex-shrink-0" />
+            <span>Lun – Sáb  8:30 am – 8:30 pm</span>
           </div>
         </div>
 
@@ -102,13 +103,13 @@ export function HeroSection({ barbershop }: HeroSectionProps) {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 mt-4 text-whatsapp text-sm font-medium hover:underline"
           >
-            <MessageCircle size={16} />
+            <MessageCircle size={15} />
             Contactar por WhatsApp
           </a>
         )}
 
         {/* Botón ver planes */}
-        <div className="mt-4">
+        <div className="mt-3 sm:mt-4">
           <button
             onClick={() => document.getElementById('planes')?.scrollIntoView({ behavior: 'smooth' })}
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-gold/30 bg-gold/10 text-gold text-sm font-semibold hover:bg-gold/20 hover:border-gold/50 transition-all active:scale-95 group"
@@ -119,6 +120,7 @@ export function HeroSection({ barbershop }: HeroSectionProps) {
           </button>
         </div>
       </div>
+
     </section>
   )
 }

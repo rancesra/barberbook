@@ -34,20 +34,32 @@ export function PublicHeader({ barbershop }: PublicHeaderProps) {
         {/* Acciones */}
         <div className="flex items-center gap-2">
           {waLink && (
-            <a
-              href={waLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden sm:flex items-center gap-1.5 text-whatsapp text-xs font-medium py-1.5 px-3 rounded-lg border border-whatsapp/30 hover:bg-whatsapp/10 transition-colors"
-            >
-              <MessageCircle size={14} />
-              WhatsApp
-            </a>
+            <>
+              {/* Móvil: solo ícono */}
+              <a
+                href={waLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="sm:hidden p-2 rounded-lg text-whatsapp hover:bg-whatsapp/10 transition-colors"
+              >
+                <MessageCircle size={20} />
+              </a>
+              {/* Desktop: ícono + texto */}
+              <a
+                href={waLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hidden sm:flex items-center gap-1.5 text-whatsapp text-xs font-medium py-1.5 px-3 rounded-lg border border-whatsapp/30 hover:bg-whatsapp/10 transition-colors"
+              >
+                <MessageCircle size={14} />
+                WhatsApp
+              </a>
+            </>
           )}
 
           <Link
             href="/agendar"
-            className="text-bg-primary bg-gold text-xs font-bold py-2 px-4 rounded-lg hover:bg-gold-light transition-colors"
+            className="hidden sm:inline-flex text-bg-primary bg-gold text-xs font-bold py-2 px-4 rounded-lg hover:bg-gold-light transition-colors"
           >
             Agendar
           </Link>

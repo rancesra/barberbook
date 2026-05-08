@@ -58,7 +58,7 @@ export function PublicFooter({ barbershop }: PublicFooterProps) {
 
         {/* Info */}
         <div className="flex items-center gap-4 text-xs text-text-muted mb-4">
-          <span>Lun – Sáb: 8:30 am – 7:30 pm</span>
+          <span>Lun – Sáb: 8:30 am – 8:30 pm</span>
           <span>·</span>
           <span>Domingo: Cerrado</span>
         </div>

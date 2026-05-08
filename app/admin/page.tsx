@@ -63,7 +63,7 @@ async function getDashboardData() {
       .gte('start_time', now.toISOString())
       .neq('status', 'cancelled')
       .order('start_time', { ascending: true })
-      .limit(8),
+      .limit(30),
     supabase
       .from('appointments')
       .select('service:services(price)')
