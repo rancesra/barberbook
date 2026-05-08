@@ -46,7 +46,7 @@ export function PublicHeader({ barbershop }: PublicHeaderProps) {
               href={mapsUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-text-muted hover:text-gold transition-colors p-2 rounded-lg hover:bg-gold/10 sm:text-xs sm:font-medium sm:py-1.5 sm:px-3 sm:border sm:border-border sm:hover:border-gold/30"
+              className="flex items-center gap-1.5 text-gold transition-colors p-2 rounded-lg hover:bg-gold/10 sm:text-xs sm:font-medium sm:py-1.5 sm:px-3 sm:border sm:border-border sm:hover:border-gold/30"
               title="Cómo llegar"
             >
               <MapPin size={18} className="sm:w-3.5 sm:h-3.5" />
@@ -60,7 +60,7 @@ export function PublicHeader({ barbershop }: PublicHeaderProps) {
               href={instagramUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-text-muted hover:text-pink-400 transition-colors p-2 rounded-lg hover:bg-pink-500/10 sm:text-xs sm:font-medium sm:py-1.5 sm:px-3 sm:border sm:border-border sm:hover:border-pink-400/30"
+              className="flex items-center gap-1.5 text-pink-400 transition-colors p-2 rounded-lg hover:bg-pink-500/10 sm:text-xs sm:font-medium sm:py-1.5 sm:px-3 sm:border sm:border-border sm:hover:border-pink-400/30"
               title="Instagram"
             >
               <Instagram size={18} className="sm:w-3.5 sm:h-3.5" />
