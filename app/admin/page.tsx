@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic'
 import { createAdminClient } from '@/lib/supabase/server'
-import { format, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth } from 'date-fns'
+import { format, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subMonths } from 'date-fns'
 import { toZonedTime, fromZonedTime } from 'date-fns-tz'
 import { es } from 'date-fns/locale'
 import { Calendar, TrendingUp, DollarSign, Plus } from 'lucide-react'
@@ -19,7 +19,9 @@ async function getDashboardData() {
   const todayEnd   = fromZonedTime(endOfDay(nowInTz), TZ).toISOString()
   const weekStart  = fromZonedTime(startOfWeek(nowInTz, { weekStartsOn: 1 }), TZ).toISOString()
   const weekEnd    = fromZonedTime(endOfWeek(nowInTz, { weekStartsOn: 1 }), TZ).toISOString()
-  const monthStart = fromZonedTime(startOfMonth(nowInTz), TZ).toISOString()
+  const monthStart     = fromZonedTime(startOfMonth(nowInTz), TZ).toISOString()
+  const lastMonthStart = fromZonedTime(startOfMonth(subMonths(nowInTz, 1)), TZ).toISOString()
+  const lastMonthEnd   = fromZonedTime(endOfMonth(subMonths(nowInTz, 1)), TZ).toISOString()
 
   // Obtener el barbero principal y la barbería
   const { data: barber } = await supabase
@@ -40,7 +42,7 @@ async function getDashboardData() {
     .limit(1)
     .single()
 
-  const [todayRes, weekRes, servicesRes, upcomingRes, earnedTodayRes, earnedMonthRes] = await Promise.all([
+  const [todayRes, weekRes, servicesRes, upcomingRes, earnedTodayRes, earnedMonthRes, earnedLastMonthRes] = await Promise.all([
     supabase
       .from('appointments')
       .select('id', { count: 'exact' })
@@ -78,6 +80,13 @@ async function getDashboardData() {
       .gte('start_time', monthStart)
       .lte('start_time', now.toISOString())
       .neq('status', 'cancelled'),
+    supabase
+      .from('appointments')
+      .select('service:services(price)')
+      .eq('barber_id', bid)
+      .gte('start_time', lastMonthStart)
+      .lte('start_time', lastMonthEnd)
+      .neq('status', 'cancelled'),
   ])
 
   const sumPrices = (data: unknown[] | null): number => {
@@ -94,8 +103,9 @@ async function getDashboardData() {
     weekCount: weekRes.count ?? 0,
     activeServices: servicesRes.count ?? 0,
     upcoming: upcomingRes.data ?? [],
-    earnedToday: sumPrices(earnedTodayRes.data),
-    earnedMonth: sumPrices(earnedMonthRes.data),
+    earnedToday:     sumPrices(earnedTodayRes.data),
+    earnedMonth:     sumPrices(earnedMonthRes.data),
+    earnedLastMonth: sumPrices(earnedLastMonthRes.data),
     mapsUrl: barbershop?.google_maps_url ?? null,
   }
 }
@@ -185,6 +195,12 @@ export default async function AdminDashboard() {
           value={formatPrice(data.earnedMonth)}
           icon={<DollarSign size={20} />}
           sub="citas ya pasadas"
+        />
+        <StatCard
+          label="Mes pasado"
+          value={formatPrice(data.earnedLastMonth)}
+          icon={<DollarSign size={20} />}
+          sub={format(subMonths(new Date(), 1), 'MMMM yyyy', { locale: es })}
         />
       </div>
 

@@ -1,8 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createAdminClient } from '@/lib/supabase/server'
+import { createAdminClient, createClient } from '@/lib/supabase/server'
+
+async function requireAuth() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  return user
+}
 
 // GET /api/schedule?barberId=xxx  — carga horarios y breaks
 export async function GET(request: NextRequest) {
+  if (!await requireAuth()) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+
   const barberId = request.nextUrl.searchParams.get('barberId')
   if (!barberId) return NextResponse.json({ error: 'Falta barberId' }, { status: 400 })
 
@@ -20,6 +28,8 @@ export async function GET(request: NextRequest) {
 
 // POST /api/schedule  — guarda horarios y breaks
 export async function POST(request: NextRequest) {
+  if (!await requireAuth()) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+
   const body = await request.json()
   const { barberId, schedule, breaks } = body
 

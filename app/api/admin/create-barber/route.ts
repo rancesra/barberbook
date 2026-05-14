@@ -1,8 +1,13 @@
-import { createAdminClient } from '@/lib/supabase/server'
+import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
 export async function POST(req: Request) {
   try {
+    // Verificar que el usuario esté autenticado
+    const authClient = await createClient()
+    const { data: { user } } = await authClient.auth.getUser()
+    if (!user) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+
     const { name, phone, password, specialty, description, sort_order, photoBase64 } = await req.json()
 
     const supabase = createAdminClient()
