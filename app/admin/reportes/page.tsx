@@ -57,7 +57,8 @@ export default function ReportesPage() {
         .neq('status', 'cancelled')
 
       const earned = (data ?? []).reduce((sum: number, row: any) => sum + (row.service?.price ?? 0), 0)
-      months.push({ label, monthParam, earned, count: (data ?? []).length })
+      const count = (data ?? []).length
+      if (count > 0) months.push({ label, monthParam, earned, count })
     }
 
     setStats(months)
@@ -242,6 +243,12 @@ export default function ReportesPage() {
       {/* Lista de meses */}
       <div className="space-y-2">
         <p className="text-xs font-semibold text-text-muted uppercase tracking-wide mb-3">Meses anteriores</p>
+        {stats.length === 0 && (
+          <div className="card p-8 text-center">
+            <p className="text-text-secondary text-sm">Aún no hay meses completados con citas.</p>
+            <p className="text-text-muted text-xs mt-1">Los reportes aparecerán aquí a partir del próximo mes.</p>
+          </div>
+        )}
         {stats.map((s) => (
           <div key={s.monthParam} className="card p-4 flex items-center justify-between gap-4">
             <div>
