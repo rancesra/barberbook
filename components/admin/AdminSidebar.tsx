@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard,
   Calendar,
@@ -11,23 +11,28 @@ import {
   LogOut,
   ChevronRight,
   Crown,
+  BarChart2,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 
 const NAV_ITEMS = [
-  { href: '/admin',              label: 'Dashboard',     icon: LayoutDashboard, exact: true },
-  { href: '/admin/reservas',     label: 'Reservas',      icon: Calendar },
-  { href: '/admin/servicios',    label: 'Servicios',     icon: Scissors },
-  { href: '/admin/horarios',     label: 'Horarios',      icon: Clock },
-  { href: '/admin/suscripciones',label: 'Suscripciones', icon: Crown },
-  { href: '/admin/barberos',     label: 'Barberos',      icon: Users },
-  { href: '/admin/configuracion',label: 'Config',        icon: Settings },
+  { href: '/admin',               label: 'Dashboard',     icon: LayoutDashboard, exact: true },
+  { href: '/admin/reservas',      label: 'Reservas',      icon: Calendar },
+  { href: '/admin/servicios',     label: 'Servicios',     icon: Scissors },
+  { href: '/admin/horarios',      label: 'Horarios',      icon: Clock },
+  { href: '/admin/suscripciones', label: 'Suscripciones', icon: Crown },
+  { href: '/admin/reportes',      label: 'Reportes',      icon: BarChart2 },
+  { href: '/admin/barberos',      label: 'Barberos',      icon: Users },
+  { href: '/admin/configuracion', label: 'Config',        icon: Settings },
 ]
+
+// Primeros 5 para el nav móvil (Dashboard, Reservas, Servicios, Horarios, Suscripciones)
+// + Reportes como 6to item visible en móvil
+const MOBILE_NAV = NAV_ITEMS.slice(0, 6)
 
 export function AdminSidebar() {
   const pathname = usePathname()
-  const router = useRouter()
 
   const handleLogout = async () => {
     const supabase = createClient()
@@ -57,7 +62,7 @@ export function AdminSidebar() {
           </div>
         </div>
 
-        {/* Nav — usa Link para prefetch automático (navegación instantánea) */}
+        {/* Nav */}
         <nav className="flex-1 p-3 space-y-1">
           {NAV_ITEMS.map((item) => {
             const active = isActive(item)
@@ -94,29 +99,29 @@ export function AdminSidebar() {
 
       {/* ── Bottom nav móvil ── */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-bg-secondary border-t border-border flex items-center justify-around px-1 h-16">
-        {NAV_ITEMS.slice(0, 5).map((item) => {
+        {MOBILE_NAV.map((item) => {
           const active = isActive(item)
           return (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
-                'flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-colors min-w-[48px]',
+                'flex flex-col items-center gap-0.5 px-1 py-1.5 rounded-xl transition-colors min-w-[44px]',
                 active ? 'text-gold' : 'text-text-muted'
               )}
             >
-              <item.icon size={20} />
-              <span className="text-[10px] font-medium leading-tight">{item.label}</span>
+              <item.icon size={19} />
+              <span className="text-[9px] font-medium leading-tight">{item.label}</span>
             </Link>
           )
         })}
-        {/* Logout en móvil */}
+        {/* Logout */}
         <button
           onClick={handleLogout}
-          className="flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl text-text-muted hover:text-red-400 transition-colors min-w-[48px]"
+          className="flex flex-col items-center gap-0.5 px-1 py-1.5 rounded-xl text-text-muted hover:text-red-400 transition-colors min-w-[44px]"
         >
-          <LogOut size={20} />
-          <span className="text-[10px] font-medium">Salir</span>
+          <LogOut size={19} />
+          <span className="text-[9px] font-medium">Salir</span>
         </button>
       </nav>
     </>

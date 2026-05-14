@@ -7,7 +7,6 @@ import { Calendar, TrendingUp, DollarSign, Plus } from 'lucide-react'
 import Link from 'next/link'
 import { formatPrice } from '@/lib/utils'
 import { UpcomingAppointments } from '@/components/admin/UpcomingAppointments'
-import { DownloadMonthlyReport } from '@/components/admin/DownloadMonthlyReport'
 
 const TZ = 'America/Bogota'
 
@@ -197,17 +196,6 @@ export default async function AdminDashboard() {
           icon={<DollarSign size={20} />}
           sub="citas ya pasadas"
         />
-        <StatCard
-          label="Mes pasado"
-          value={formatPrice(data.earnedLastMonth)}
-          icon={<DollarSign size={20} />}
-          sub={format(subMonths(new Date(), 1), 'MMMM yyyy', { locale: es })}
-        />
-      </div>
-
-      {/* Reporte mensual */}
-      <div className="mb-8">
-        <DownloadMonthlyReport />
       </div>
 
       {/* Próximas citas */}
