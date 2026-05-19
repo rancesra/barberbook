@@ -14,8 +14,12 @@ export function formatPhone(phone: string): string {
 }
 
 export function buildWhatsAppLink(phone: string, message: string): string {
-  const clean = formatPhone(phone)
-  return `https://wa.me/${clean.replace('+', '')}?text=${encodeURIComponent(message)}`
+  let clean = formatPhone(phone).replace('+', '')
+  // Si no tiene el código de país de Colombia (+57), agregarlo automáticamente
+  if (!clean.startsWith('57')) {
+    clean = '57' + clean
+  }
+  return `https://wa.me/${clean}?text=${encodeURIComponent(message)}`
 }
 
 export function buildBookingWhatsAppMessage(params: {
