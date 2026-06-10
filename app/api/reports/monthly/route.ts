@@ -15,16 +15,24 @@ export async function GET(req: NextRequest) {
   const monthParam = req.nextUrl.searchParams.get('month') // formato: "2026-04"
   const now = toZonedTime(new Date(), TZ)
 
-  let targetDate: Date
+  let rangeStart: string
+  let rangeEnd: string
+
   if (monthParam) {
     const [year, month] = monthParam.split('-').map(Number)
-    targetDate = toZonedTime(new Date(year, month - 1, 1), TZ)
+    // Usar el día 15 al mediodía UTC para evitar desfase de zona horaria al calcular inicio/fin de mes
+    const midMonth = toZonedTime(new Date(Date.UTC(year, month - 1, 15, 17, 0, 0)), TZ)
+    rangeStart = fromZonedTime(startOfMonth(midMonth), TZ).toISOString()
+    rangeEnd   = fromZonedTime(endOfMonth(midMonth), TZ).toISOString()
   } else {
-    targetDate = subMonths(now, 1)
+    const lastMonth = subMonths(now, 1)
+    rangeStart = fromZonedTime(startOfMonth(lastMonth), TZ).toISOString()
+    rangeEnd   = fromZonedTime(endOfMonth(lastMonth), TZ).toISOString()
   }
 
-  const rangeStart = fromZonedTime(startOfMonth(targetDate), TZ).toISOString()
-  const rangeEnd   = fromZonedTime(endOfMonth(targetDate), TZ).toISOString()
+  const targetDate = monthParam
+    ? toZonedTime(new Date(Date.UTC(Number(monthParam.split('-')[0]), Number(monthParam.split('-')[1]) - 1, 15, 17, 0, 0)), TZ)
+    : subMonths(now, 1)
 
   const supabase = createAdminClient()
 
