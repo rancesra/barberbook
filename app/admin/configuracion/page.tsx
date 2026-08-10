@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { Save, ExternalLink } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/Button'
+import { PushNotificationToggle } from '@/components/admin/PushNotificationToggle'
 import type { Barbershop } from '@/types'
 
 export default function ConfiguracionPage() {
@@ -38,6 +39,7 @@ export default function ConfiguracionPage() {
         instagram: barbershop.instagram,
         address: barbershop.address,
         google_maps_url: barbershop.google_maps_url,
+        notification_email: barbershop.notification_email,
       })
       .eq('id', barbershop.id)
 
@@ -153,6 +155,20 @@ export default function ConfiguracionPage() {
           />
         </div>
 
+        <div>
+          <label className="label">Correo para notificaciones</label>
+          <input
+            className="input-field"
+            type="email"
+            value={barbershop.notification_email ?? ''}
+            onChange={(e) => updateField('notification_email', e.target.value)}
+            placeholder="tucorreo@ejemplo.com"
+          />
+          <p className="text-text-muted text-xs mt-1">
+            Recibirás un correo cada vez que un cliente agende una cita nueva.
+          </p>
+        </div>
+
         <div className="pt-2">
           <Button type="submit" loading={saving} fullWidth>
             <Save size={16} className="mr-2" />
@@ -160,6 +176,14 @@ export default function ConfiguracionPage() {
           </Button>
         </div>
       </form>
+
+      <div className="card p-6 mt-6">
+        <h2 className="text-lg font-semibold text-text-primary mb-1">Notificaciones push</h2>
+        <p className="text-text-secondary text-sm mb-4">
+          Recibe una alerta en tu teléfono o computador cuando entre una cita nueva.
+        </p>
+        <PushNotificationToggle />
+      </div>
     </div>
   )
 }

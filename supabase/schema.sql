@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS barbershops (
   instagram VARCHAR(100),
   address TEXT,
   google_maps_url TEXT,
+  notification_email VARCHAR(255),
   timezone VARCHAR(50) DEFAULT 'America/Bogota',
   primary_color VARCHAR(7) DEFAULT '#0E0E0E',
   accent_color VARCHAR(7) DEFAULT '#C9A84C',
@@ -152,6 +153,22 @@ CREATE TABLE IF NOT EXISTS blocked_dates (
 );
 
 CREATE INDEX IF NOT EXISTS idx_blocked_dates_barber ON blocked_dates(barber_id, date);
+
+-- ============================================================
+-- TABLA: push_subscriptions
+-- Suscripciones de notificaciones push del navegador (admin/barbero).
+-- Sin políticas RLS a propósito: solo el service role (admin client)
+-- puede leer/escribir aquí.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS push_subscriptions (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  endpoint TEXT UNIQUE NOT NULL,
+  p256dh TEXT NOT NULL,
+  auth TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE push_subscriptions ENABLE ROW LEVEL SECURITY;
 
 -- ============================================================
 -- FUNCIÓN Y TRIGGERS: updated_at automático
