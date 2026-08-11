@@ -82,7 +82,7 @@ export default function SuscripcionesPage() {
 
   return (
     <div className="p-6 max-w-6xl">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-text-primary">Suscripciones</h1>
           <p className="text-text-secondary text-sm mt-1">
@@ -91,7 +91,7 @@ export default function SuscripcionesPage() {
         </div>
         <a
           href="/admin/suscripciones/nueva"
-          className="flex items-center gap-2 bg-gold text-bg-primary text-sm font-semibold py-2.5 px-4 rounded-xl hover:bg-gold-light transition-colors"
+          className="flex items-center justify-center gap-2 bg-gold text-bg-primary text-sm font-semibold py-2.5 px-4 rounded-xl hover:bg-gold-light transition-colors self-start"
         >
           <Plus size={16} />
           Nueva suscripción

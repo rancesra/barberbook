@@ -21,7 +21,6 @@ export interface Barbershop {
   address: string | null
   google_maps_url: string | null
   google_maps_url2: string | null
-  notification_email: string | null
   timezone: string
   primary_color: string
   accent_color: string

@@ -37,7 +37,8 @@
   .btn-primary {
     @apply bg-gold text-bg-primary font-semibold py-3.5 px-6 rounded-xl
            transition-all duration-200 hover:bg-gold-light active:scale-95
-           disabled:opacity-50 disabled:cursor-not-allowed text-center w-full;
+           disabled:opacity-50 disabled:cursor-not-allowed text-center w-full
+           shadow-[0_4px_18px_-4px_rgba(201,168,76,0.4)];
   }
 
   .btn-secondary {
@@ -53,7 +54,7 @@
   }
 
   .card {
-    @apply bg-bg-secondary border border-border rounded-2xl;
+    @apply bg-bg-secondary border border-border rounded-2xl shadow-[0_2px_12px_-2px_rgba(0,0,0,0.4)];
   }
 
   .input-field {

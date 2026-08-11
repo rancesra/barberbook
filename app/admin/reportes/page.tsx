@@ -216,27 +216,27 @@ export default function ReportesPage() {
 
       {/* Resumen general */}
       <div className="grid grid-cols-3 gap-3 mb-8">
-        <div className="card p-4">
+        <div className="card p-4 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <DollarSign size={14} className="text-gold" />
-            <p className="text-text-muted text-xs">Últimos 6 meses</p>
+            <DollarSign size={14} className="text-gold flex-shrink-0" />
+            <p className="text-text-muted text-xs truncate">Últimos 6 meses</p>
           </div>
-          <p className="text-xl font-bold text-text-primary">{formatPrice(totalGeneral)}</p>
+          <p className="text-lg sm:text-xl font-bold text-text-primary truncate">{formatPrice(totalGeneral)}</p>
         </div>
-        <div className="card p-4">
+        <div className="card p-4 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <Calendar size={14} className="text-gold" />
-            <p className="text-text-muted text-xs">Total citas</p>
+            <Calendar size={14} className="text-gold flex-shrink-0" />
+            <p className="text-text-muted text-xs truncate">Total citas</p>
           </div>
-          <p className="text-xl font-bold text-text-primary">{totalCitas}</p>
+          <p className="text-lg sm:text-xl font-bold text-text-primary truncate">{totalCitas}</p>
         </div>
-        <div className="card p-4">
+        <div className="card p-4 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <TrendingUp size={14} className="text-gold" />
-            <p className="text-text-muted text-xs">Mejor mes</p>
+            <TrendingUp size={14} className="text-gold flex-shrink-0" />
+            <p className="text-text-muted text-xs truncate">Mejor mes</p>
           </div>
-          <p className="text-sm font-bold text-text-primary capitalize">{mejorMes?.label.split(' ')[0] ?? '—'}</p>
-          <p className="text-xs text-gold font-semibold">{mejorMes ? formatPrice(mejorMes.earned) : '—'}</p>
+          <p className="text-sm font-bold text-text-primary capitalize truncate">{mejorMes?.label.split(' ')[0] ?? '—'}</p>
+          <p className="text-xs text-gold font-semibold truncate">{mejorMes ? formatPrice(mejorMes.earned) : '—'}</p>
         </div>
       </div>
 

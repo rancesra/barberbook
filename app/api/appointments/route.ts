@@ -4,7 +4,6 @@ import { es } from 'date-fns/locale'
 import { createAdminClient } from '@/lib/supabase/server'
 import { calculateAvailability } from '@/lib/availability'
 import { sendWhatsAppReminder } from '@/lib/sent'
-import { sendAppointmentEmail } from '@/lib/email'
 import { sendPushToAdmin } from '@/lib/push'
 import { z } from 'zod'
 
@@ -161,23 +160,12 @@ export async function POST(request: NextRequest) {
       barberName: barber.name,
     }).catch((err) => console.error('[Sent] Error en background:', err))
 
-    // 6. Notificar al admin/barbero (correo + push)
-    await Promise.allSettled([
-      sendAppointmentEmail({
-        to: barbershop.notification_email ?? '',
-        customerName: customer.name,
-        customerPhone: customer.phone,
-        serviceName: service.name,
-        barberName: barber.name,
-        date: format(appointmentDate, "EEEE d 'de' MMMM", { locale: es }),
-        time: format(appointmentDate, 'h:mm a'),
-      }),
-      sendPushToAdmin({
-        title: 'Nueva cita reservada',
-        body: `${customer.name} — ${service.name}, ${format(appointmentDate, 'd MMM', { locale: es })} ${format(appointmentDate, 'h:mm a')}`,
-        url: '/admin/reservas',
-      }),
-    ])
+    // 6. Notificar al admin/barbero (push)
+    await sendPushToAdmin({
+      title: 'Nueva cita reservada',
+      body: `${customer.name} — ${service.name}, ${format(appointmentDate, 'd MMM', { locale: es })} ${format(appointmentDate, 'h:mm a')}`,
+      url: '/admin/reservas',
+    })
 
     return NextResponse.json({ success: true, appointment }, { status: 201 })
   } catch (error) {

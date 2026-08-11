@@ -1,4 +1,5 @@
 'use client'
+import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
@@ -12,6 +13,8 @@ import {
   ChevronRight,
   Crown,
   BarChart2,
+  MoreHorizontal,
+  X,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
@@ -27,12 +30,16 @@ const NAV_ITEMS = [
   { href: '/admin/configuracion', label: 'Config',        icon: Settings },
 ]
 
-// Primeros 5 para el nav móvil (Dashboard, Reservas, Servicios, Horarios, Suscripciones)
-// + Reportes como 6to item visible en móvil
-const MOBILE_NAV = NAV_ITEMS.slice(0, 6)
+// Nav móvil: lo que se revisa a diario va directo en la barra.
+// Lo que se configura una vez y ya (Servicios, Horarios, Barberos, Config) va en "Más".
+const MOBILE_PRIMARY = NAV_ITEMS.filter((item) =>
+  ['/admin', '/admin/reservas', '/admin/suscripciones', '/admin/reportes'].includes(item.href)
+)
+const MOBILE_MORE = NAV_ITEMS.filter((item) => !MOBILE_PRIMARY.includes(item))
 
 export function AdminSidebar() {
   const pathname = usePathname()
+  const [moreOpen, setMoreOpen] = useState(false)
 
   const handleLogout = async () => {
     const supabase = createClient()
@@ -44,6 +51,8 @@ export function AdminSidebar() {
     if (item.exact) return pathname === item.href
     return pathname.startsWith(item.href)
   }
+
+  const isMoreActive = MOBILE_MORE.some(isActive)
 
   return (
     <>
@@ -98,8 +107,8 @@ export function AdminSidebar() {
       </aside>
 
       {/* ── Bottom nav móvil ── */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-bg-secondary border-t border-border flex items-center justify-around px-1 h-16">
-        {MOBILE_NAV.map((item) => {
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-bg-secondary border-t border-border flex items-center justify-around px-1 h-16 pb-[env(safe-area-inset-bottom)]">
+        {MOBILE_PRIMARY.map((item) => {
           const active = isActive(item)
           return (
             <Link
@@ -115,15 +124,59 @@ export function AdminSidebar() {
             </Link>
           )
         })}
-        {/* Logout */}
         <button
-          onClick={handleLogout}
-          className="flex flex-col items-center gap-0.5 px-1 py-1.5 rounded-xl text-text-muted hover:text-red-400 transition-colors min-w-[44px]"
+          onClick={() => setMoreOpen(true)}
+          className={cn(
+            'flex flex-col items-center gap-0.5 px-1 py-1.5 rounded-xl transition-colors min-w-[44px]',
+            isMoreActive ? 'text-gold' : 'text-text-muted'
+          )}
         >
-          <LogOut size={19} />
-          <span className="text-[9px] font-medium">Salir</span>
+          <MoreHorizontal size={19} />
+          <span className="text-[9px] font-medium leading-tight">Más</span>
         </button>
       </nav>
+
+      {/* ── Hoja "Más" móvil ── */}
+      {moreOpen && (
+        <div className="md:hidden fixed inset-0 z-50">
+          <div
+            className="absolute inset-0 bg-black/60"
+            onClick={() => setMoreOpen(false)}
+          />
+          <div className="absolute bottom-0 left-0 right-0 bg-bg-secondary border-t border-border rounded-t-2xl p-3 pb-[calc(env(safe-area-inset-bottom)+1.5rem)]">
+            <div className="flex items-center justify-between px-2 pb-2 mb-1 border-b border-border">
+              <p className="text-sm font-semibold text-text-primary">Más opciones</p>
+              <button onClick={() => setMoreOpen(false)} className="p-1 text-text-muted">
+                <X size={18} />
+              </button>
+            </div>
+            {MOBILE_MORE.map((item) => {
+              const active = isActive(item)
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMoreOpen(false)}
+                  className={cn(
+                    'flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors',
+                    active ? 'bg-gold/10 text-gold' : 'text-text-secondary'
+                  )}
+                >
+                  <item.icon size={18} />
+                  {item.label}
+                </Link>
+              )
+            })}
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium text-red-400 w-full"
+            >
+              <LogOut size={18} />
+              Cerrar sesión
+            </button>
+          </div>
+        </div>
+      )}
     </>
   )
 }

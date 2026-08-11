@@ -155,8 +155,6 @@ export default function ReservasPage() {
             {items.map((appt) => {
           const startDate = parseISO(appt.start_time)
           const past = isPast(startDate)
-          const waMsg = `Hola, *${appt.customer?.name}*.\n\nLe recordamos su cita en *Artist Studio* con Andres:\n\nFecha: *${format(startDate, "d 'de' MMMM", { locale: es })}*\nHora: *${format(startDate, 'h:mm a')}*\nServicio: ${appt.service?.name}\n\nLe esperamos.`
-          const waLink = appt.customer?.phone ? buildWhatsAppLink(appt.customer.phone, waMsg) : null
 
           return (
             <div key={appt.id} className={`card p-4 ${past ? 'opacity-70' : ''}`}>
@@ -178,12 +176,6 @@ export default function ReservasPage() {
                   {appt.notes && <p className="text-xs text-text-muted mt-1.5 italic">"{appt.notes}"</p>}
                 </div>
                 <div className="flex items-center gap-1.5 flex-shrink-0">
-                  {waLink && (
-                    <a href={waLink} target="_blank" rel="noopener noreferrer"
-                      className="p-2 rounded-lg text-whatsapp hover:bg-green-900/20 transition-colors" title="WhatsApp">
-                      <MessageCircle size={16} />
-                    </a>
-                  )}
                   {!past && appt.customer?.phone && (
                     <button
                       onClick={async () => {

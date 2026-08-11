@@ -120,14 +120,14 @@ interface StatCardProps {
 
 function StatCard({ label, value, icon, sub, href }: StatCardProps) {
   const content = (
-    <div className="card p-5 hover:border-border-light transition-colors">
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-text-muted text-sm mb-1">{label}</p>
-          <p className="text-3xl font-bold text-text-primary">{value}</p>
-          {sub && <p className="text-text-muted text-xs mt-1">{sub}</p>}
+    <div className="card p-4 sm:p-5 hover:border-border-light transition-colors">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="text-text-muted text-xs sm:text-sm mb-1 truncate">{label}</p>
+          <p className="text-xl sm:text-3xl font-bold text-text-primary truncate">{value}</p>
+          {sub && <p className="text-text-muted text-xs mt-1 truncate">{sub}</p>}
         </div>
-        <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center text-gold">
+        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gold/10 flex items-center justify-center text-gold flex-shrink-0">
           {icon}
         </div>
       </div>

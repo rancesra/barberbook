@@ -136,14 +136,14 @@ export default function EditarHorariosPage() {
                     type="time"
                     value={day.start_time}
                     onChange={e => updateDay(i, 'start_time', e.target.value)}
-                    className="input-field py-1.5 text-sm w-28"
+                    className="input-field py-1.5 text-sm w-36"
                   />
                   <span className="text-text-muted text-sm">–</span>
                   <input
                     type="time"
                     value={day.end_time}
                     onChange={e => updateDay(i, 'end_time', e.target.value)}
-                    className="input-field py-1.5 text-sm w-28"
+                    className="input-field py-1.5 text-sm w-36"
                   />
                 </div>
               ) : (
@@ -170,14 +170,14 @@ export default function EditarHorariosPage() {
                       type="time"
                       value={breaks[i]?.start_time ?? DEFAULT_BREAK_START}
                       onChange={e => updateBreak(i, 'start_time', e.target.value)}
-                      className="input-field py-1 text-xs w-24"
+                      className="input-field py-1 text-xs w-28"
                     />
                     <span className="text-text-muted text-xs">–</span>
                     <input
                       type="time"
                       value={breaks[i]?.end_time ?? DEFAULT_BREAK_END}
                       onChange={e => updateBreak(i, 'end_time', e.target.value)}
-                      className="input-field py-1 text-xs w-24"
+                      className="input-field py-1 text-xs w-28"
                     />
                   </div>
                 )}

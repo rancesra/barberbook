@@ -39,7 +39,6 @@ export default function ConfiguracionPage() {
         instagram: barbershop.instagram,
         address: barbershop.address,
         google_maps_url: barbershop.google_maps_url,
-        notification_email: barbershop.notification_email,
       })
       .eq('id', barbershop.id)
 
@@ -153,20 +152,6 @@ export default function ConfiguracionPage() {
             onChange={(e) => updateField('google_maps_url', e.target.value)}
             placeholder="https://maps.google.com/..."
           />
-        </div>
-
-        <div>
-          <label className="label">Correo para notificaciones</label>
-          <input
-            className="input-field"
-            type="email"
-            value={barbershop.notification_email ?? ''}
-            onChange={(e) => updateField('notification_email', e.target.value)}
-            placeholder="tucorreo@ejemplo.com"
-          />
-          <p className="text-text-muted text-xs mt-1">
-            Recibirás un correo cada vez que un cliente agende una cita nueva.
-          </p>
         </div>
 
         <div className="pt-2">
