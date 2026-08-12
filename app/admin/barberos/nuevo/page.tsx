@@ -164,7 +164,7 @@ export default function NuevoBarberoPage() {
               type="tel"
               inputMode="numeric"
               className="input-field flex-1"
-              placeholder="3156669991"
+              placeholder="3001234567"
               value={form.phone}
               onChange={handlePhone}
               maxLength={10}

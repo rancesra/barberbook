@@ -15,7 +15,6 @@ export function TimeSelector({ slots, selectedSlot, onSelect, serviceName }: Tim
   if (availableSlots.length === 0) {
     return (
       <div className="animate-slide-up">
-        <h2 className="text-xl font-bold text-text-primary mb-1">Horarios disponibles</h2>
         <div className="mt-6 text-center py-10">
           <div className="text-4xl mb-3">📅</div>
           <p className="text-text-secondary font-medium">No hay horarios disponibles</p>
@@ -27,7 +26,6 @@ export function TimeSelector({ slots, selectedSlot, onSelect, serviceName }: Tim
 
   return (
     <div className="animate-slide-up">
-      <h2 className="text-xl font-bold text-text-primary mb-1">Horarios disponibles</h2>
       {serviceName && (
         <p className="text-text-secondary text-sm mb-5">
           {availableSlots.length} horario{availableSlots.length !== 1 ? 's' : ''} para {serviceName}

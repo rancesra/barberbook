@@ -167,7 +167,7 @@ export default async function AdminDashboard() {
       </div>
 
       {/* Stats citas */}
-      <div className="grid grid-cols-2 gap-4 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
         <StatCard
           label="Citas hoy"
           value={data.todayCount}
@@ -183,7 +183,7 @@ export default async function AdminDashboard() {
       </div>
 
       {/* Stats ingresos */}
-      <div className="grid grid-cols-2 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
         <StatCard
           label="Ganado hoy"
           value={formatPrice(data.earnedToday)}

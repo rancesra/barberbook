@@ -215,7 +215,7 @@ export default function ReportesPage() {
       </div>
 
       {/* Resumen general */}
-      <div className="grid grid-cols-3 gap-3 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
         <div className="card p-4 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <DollarSign size={14} className="text-gold flex-shrink-0" />

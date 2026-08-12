@@ -113,7 +113,7 @@ export default function NuevaSuscripcionPage() {
               inputMode="numeric"
               className="input-field flex-1"
               value={form.customer_phone}
-              placeholder="3156669991"
+              placeholder="3001234567"
               required
               maxLength={10}
               pattern="\d{10}"
@@ -124,7 +124,7 @@ export default function NuevaSuscripcionPage() {
           <p className="text-text-muted text-xs mt-1">10 dígitos sin el 0 inicial ni el +57</p>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="label">Fecha inicio *</label>
             <input

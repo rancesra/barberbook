@@ -16,9 +16,6 @@ export function ServiceSelector({
 }: ServiceSelectorProps) {
   return (
     <div className="animate-slide-up">
-      <h2 className="text-xl font-bold text-text-primary mb-1">Elige un servicio</h2>
-      <p className="text-text-secondary text-sm mb-5">¿Qué te vamos a hacer hoy?</p>
-
       <div className="grid grid-cols-1 gap-3">
         {services.map((service) => {
           const isSelected = selectedServiceId === service.id

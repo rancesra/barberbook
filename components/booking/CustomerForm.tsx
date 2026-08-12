@@ -31,9 +31,6 @@ export function CustomerForm({ defaultValues, onSubmit, isLoading }: CustomerFor
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="animate-slide-up">
-      <h2 className="text-xl font-bold text-text-primary mb-1">Confirma tus datos</h2>
-      <p className="text-text-secondary text-sm mb-6">Solo necesitamos lo básico</p>
-
       <div className="flex flex-col gap-4">
         {/* Nombre */}
         <div>
@@ -61,7 +58,7 @@ export function CustomerForm({ defaultValues, onSubmit, isLoading }: CustomerFor
             <input
               type="tel"
               inputMode="numeric"
-              placeholder="3156669991"
+              placeholder="3001234567"
               autoComplete="tel"
               className="input-field flex-1"
               {...register('phone', {
