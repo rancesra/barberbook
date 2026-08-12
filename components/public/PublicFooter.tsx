@@ -14,16 +14,16 @@ export function PublicFooter({ barbershop }: PublicFooterProps) {
   const currentYear = new Date().getFullYear()
 
   return (
-    <footer className="border-t border-border bg-bg-secondary">
-      <div className="max-w-5xl mx-auto px-4 py-8">
+    <footer className="border-t border-white/10 bg-bg-secondary/60">
+      <div className="max-w-5xl mx-auto px-4 py-10">
         {/* Top */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gold/20 flex items-center justify-center">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-gold/15 border border-gold/20 flex items-center justify-center">
               <Scissors size={16} className="text-gold" />
             </div>
             <div>
-              <p className="font-bold text-text-primary text-sm">{barbershop.name}</p>
+              <p className="font-display font-semibold text-text-primary text-sm tracking-wide">{barbershop.name}</p>
               {barbershop.address && (
                 <p className="text-text-muted text-xs">{barbershop.address}</p>
               )}
@@ -64,7 +64,7 @@ export function PublicFooter({ barbershop }: PublicFooterProps) {
         </div>
 
         {/* Bottom */}
-        <div className="pt-4 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-2">
+        <div className="pt-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-2">
           <p className="text-text-muted text-xs">
             © {currentYear} {barbershop.name}. Todos los derechos reservados.
           </p>
