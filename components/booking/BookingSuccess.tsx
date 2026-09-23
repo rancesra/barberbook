@@ -56,10 +56,13 @@ export function BookingSuccess({
     : null
 
   // Mensaje de notificación al cliente (para cuando Andrés agenda desde el panel)
+  const codeLine = cancellationCode
+    ? `\n\nSu codigo de cancelacion es *${cancellationCode}*. Uselo en la pagina principal si necesita cancelar.`
+    : ''
   const clientNotifMessage = customerPhone
     ? buildWhatsAppLink(
         customerPhone,
-        `Hola, *${customerName}*.\n\nSu cita en *${barbershop.name}* ha sido confirmada:\n\nFecha: *${dateFormatted}*\nHora: *${selectedSlot.label}*\nServicio: ${service.name}\nBarbero: Andres\n\nLe esperamos.`
+        `Hola, *${customerName}*.\n\nSu cita en *${barbershop.name}* ha sido confirmada:\n\nFecha: *${dateFormatted}*\nHora: *${selectedSlot.label}*\nServicio: ${service.name}\nBarbero: Andres${codeLine}\n\nLe esperamos.`
       )
     : null
 
@@ -92,19 +95,22 @@ export function BookingSuccess({
         </div>
       </div>
 
-      {/* Código de cancelación — solo para el cliente */}
-      {!returnToAdmin && cancellationCode && (
+      {/* Código de cancelación */}
+      {cancellationCode && (
         <div className="w-full card p-5 mb-6 border-gold/40">
           <div className="flex items-center justify-center gap-2 mb-2">
             <KeyRound size={16} className="text-gold" />
-            <p className="text-text-secondary text-sm font-medium">Tu código de cancelación</p>
+            <p className="text-text-secondary text-sm font-medium">
+              {returnToAdmin ? 'Código de cancelación del cliente' : 'Tu código de cancelación'}
+            </p>
           </div>
           <p className="text-4xl font-bold text-gold tracking-[0.3em] text-center mb-2 pl-[0.3em]">
             {cancellationCode}
           </p>
           <p className="text-text-muted text-xs text-center leading-relaxed">
-            Guárdalo. Si no puedes venir, ingrésalo en la página principal para
-            cancelar tu cita y liberar el horario.
+            {returnToAdmin
+              ? 'Va incluido en el mensaje de confirmación que le envíes al cliente.'
+              : 'Guárdalo. Si no puedes venir, ingrésalo en la página principal para cancelar tu cita y liberar el horario.'}
           </p>
         </div>
       )}

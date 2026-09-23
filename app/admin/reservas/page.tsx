@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { format, parseISO, isPast, isSameDay, addDays } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Phone, MessageCircle, Trash2, Plus } from 'lucide-react'
+import { Phone, MessageCircle, Trash2, Plus, KeyRound } from 'lucide-react'
 import { toZonedTime } from 'date-fns-tz'
 import { createClient } from '@/lib/supabase/client'
 import { buildWhatsAppLink } from '@/lib/utils'
@@ -15,6 +15,7 @@ interface Appointment {
   start_time: string
   status: string
   notes: string | null
+  cancellation_code: string | null
   service: { name: string; duration_minutes: number } | null
   customer: { name: string; phone: string } | null
 }
@@ -58,7 +59,7 @@ export default function ReservasPage() {
     }
     const { data } = await supabase
       .from('appointments')
-      .select('id, start_time, status, notes, service:services(name, duration_minutes), customer:customers(name, phone)')
+      .select('id, start_time, status, notes, cancellation_code, service:services(name, duration_minutes), customer:customers(name, phone)')
       .eq('barber_id', bid)
       .order('start_time', { ascending: false })
       .limit(500)
@@ -171,6 +172,12 @@ export default function ReservasPage() {
                     <span>📅 {format(startDate, "d MMM yyyy", { locale: es })} · {format(startDate, 'h:mm a')}</span>
                     {appt.customer?.phone && (
                       <span className="flex items-center gap-1"><Phone size={10} />{appt.customer.phone}</span>
+                    )}
+                    {appt.cancellation_code && !past && appt.status !== 'cancelled' && (
+                      <span className="flex items-center gap-1 text-gold">
+                        <KeyRound size={10} />
+                        Código: <span className="font-bold tracking-wider">{appt.cancellation_code}</span>
+                      </span>
                     )}
                   </div>
                   {appt.notes && <p className="text-xs text-text-muted mt-1.5 italic">"{appt.notes}"</p>}
