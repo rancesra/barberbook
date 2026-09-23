@@ -15,19 +15,24 @@ export function ServiceSelector({
   onSelect,
 }: ServiceSelectorProps) {
   return (
-    <div className="animate-slide-up">
-      <div className="grid grid-cols-1 gap-3">
+    <div className="ios-step">
+      <div className="grid grid-cols-1 gap-3 ios-stagger">
         {services.map((service) => {
           const isSelected = selectedServiceId === service.id
           return (
             <button
               key={service.id}
-              onClick={() => onSelect(service.id)}
+              onClick={(e) => {
+                // Nombrar la tarjeta justo antes del cambio: el navegador la
+                // empareja con la fila de resumen y la transforma.
+                e.currentTarget.style.viewTransitionName = 'servicio-elegido'
+                onSelect(service.id)
+              }}
               className={cn(
-                'w-full text-left p-4 rounded-2xl border transition-all duration-200 active:scale-[0.98]',
+                'w-full text-left p-4 rounded-3xl transition-all duration-200 active:scale-[0.98]',
                 isSelected
-                  ? 'border-gold bg-gold/5'
-                  : 'border-border bg-bg-secondary hover:border-border-light'
+                  ? 'glass-strong border-gold/50 ring-1 ring-gold/30'
+                  : 'glass hover:bg-white/10'
               )}
             >
               <div className="flex items-center justify-between gap-3">

@@ -120,14 +120,14 @@ interface StatCardProps {
 
 function StatCard({ label, value, icon, sub, href }: StatCardProps) {
   const content = (
-    <div className="card p-4 sm:p-5 hover:border-border-light transition-colors">
+    <div className="card p-4 sm:p-5 transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-1 hover:bg-white/10 ios-step">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="text-text-muted text-xs sm:text-sm mb-1 truncate">{label}</p>
           <p className="text-xl sm:text-3xl font-bold text-text-primary truncate">{value}</p>
           {sub && <p className="text-text-muted text-xs mt-1 truncate">{sub}</p>}
         </div>
-        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gold/10 flex items-center justify-center text-gold flex-shrink-0">
+        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-br from-gold/25 to-gold/5 border border-gold/20 flex items-center justify-center text-gold flex-shrink-0">
           {icon}
         </div>
       </div>
@@ -149,17 +149,17 @@ export default async function AdminDashboard() {
   }
 
   return (
-    <div className="p-6 max-w-4xl">
+    <div className="p-6 max-w-4xl ios-push">
       <div className="flex items-start justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">Hola, {data.barberName} 👋</h1>
+          <h1 className="text-[28px] leading-tight font-bold text-text-primary tracking-tight">Hola, {data.barberName} 👋</h1>
           <p className="text-text-secondary text-sm mt-1 capitalize">
             {format(new Date(), "EEEE d 'de' MMMM, yyyy", { locale: es })}
           </p>
         </div>
         <Link
           href="/agendar?from=admin"
-          className="flex items-center gap-2 bg-gold text-bg-primary text-sm font-bold px-4 py-2.5 rounded-xl hover:bg-gold-light transition-colors"
+          className="glass-gold flex items-center gap-2 text-bg-primary text-sm font-bold px-5 py-2.5 rounded-full hover:brightness-110 transition-all ios-press"
         >
           <Plus size={16} />
           Nueva cita
@@ -200,7 +200,7 @@ export default async function AdminDashboard() {
 
       {/* Próximas citas */}
       <div className="card overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
           <h2 className="font-semibold text-text-primary">Próximas citas</h2>
           <Link href="/admin/reservas" className="text-gold text-sm font-medium hover:text-gold-light">
             Ver todas →

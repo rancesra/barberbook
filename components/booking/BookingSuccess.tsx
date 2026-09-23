@@ -69,9 +69,9 @@ export function BookingSuccess({
   const mapsLink = barbershop.google_maps_url || null
 
   return (
-    <div className="animate-slide-up flex flex-col items-center text-center">
-      <div className="w-20 h-20 rounded-full bg-green-900/30 flex items-center justify-center mb-6 mt-2">
-        <CheckCircle size={44} className="text-green-400" strokeWidth={1.5} />
+    <div className="ios-step flex flex-col items-center text-center">
+      <div className="w-20 h-20 rounded-full bg-green-500/15 border border-green-400/30 flex items-center justify-center mb-6 mt-2 ios-pop">
+        <CheckCircle size={44} className="text-green-400 ios-draw" strokeWidth={1.5} />
       </div>
 
       <h2 className="text-2xl font-bold text-text-primary mb-2">
@@ -83,7 +83,7 @@ export function BookingSuccess({
         )}
       </p>
 
-      <div className="w-full card p-5 text-left mb-6">
+      <div className="w-full card p-5 text-left mb-6 ios-reveal" style={{ animationDelay: '0.2s' }}>
         <div className="space-y-3">
           <DetailRow label="Cliente" value={customerName} />
           <DetailRow label="Servicio" value={service.name} />
@@ -97,7 +97,7 @@ export function BookingSuccess({
 
       {/* Código de cancelación */}
       {cancellationCode && (
-        <div className="w-full card p-5 mb-6 border-gold/40">
+        <div className="w-full card p-5 mb-6 border-gold/40 ios-reveal" style={{ animationDelay: '0.35s' }}>
           <div className="flex items-center justify-center gap-2 mb-2">
             <KeyRound size={16} className="text-gold" />
             <p className="text-text-secondary text-sm font-medium">
@@ -105,7 +105,15 @@ export function BookingSuccess({
             </p>
           </div>
           <p className="text-4xl font-bold text-gold tracking-[0.3em] text-center mb-2 pl-[0.3em]">
-            {cancellationCode}
+            {cancellationCode.split('').map((digit, i) => (
+              <span
+                key={i}
+                className="ios-digit"
+                style={{ animationDelay: `${0.5 + i * 0.12}s` }}
+              >
+                {digit}
+              </span>
+            ))}
           </p>
           <p className="text-text-muted text-xs text-center leading-relaxed">
             {returnToAdmin
@@ -115,7 +123,7 @@ export function BookingSuccess({
         </div>
       )}
 
-      <div className="w-full flex flex-col gap-3">
+      <div className="w-full flex flex-col gap-3 ios-reveal" style={{ animationDelay: '0.5s' }}>
         {returnToAdmin ? (
           <>
             {clientNotifMessage && (

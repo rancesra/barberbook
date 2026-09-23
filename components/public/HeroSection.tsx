@@ -1,7 +1,7 @@
 'use client'
-import Link from 'next/link'
-import { MapPin, Clock, MessageCircle, Crown, ChevronDown, KeyRound } from 'lucide-react'
+import { MapPin, Clock, MessageCircle, Crown, ChevronDown, KeyRound, ArrowRight, Info } from 'lucide-react'
 import { buildWhatsAppLink } from '@/lib/utils'
+import { SheetLink } from '@/components/ui/SheetLink'
 import type { Barbershop } from '@/types'
 
 interface HeroSectionProps {
@@ -20,12 +20,9 @@ export function HeroSection({ barbershop }: HeroSectionProps) {
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute inset-0 bg-[url('/fondo2.webp')] bg-cover bg-center sm:bg-[url('/fondo.webp')]" />
 
-        {/* Degradado de fondo */}
-        <div className="absolute inset-0 bg-black/45" />
-        <div className="absolute inset-0 bg-gradient-to-br from-bg-primary/50 via-bg-primary/20 to-bg-primary/60" />
-
-        {/* Brillo dorado sutil arriba */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[250px] bg-gold/8 blur-[100px] rounded-full" />
+        {/* Degradado de fondo — solo lo necesario para que el texto se lea */}
+        <div className="absolute inset-0 bg-black/25" />
+        <div className="absolute inset-0 bg-gradient-to-b from-bg-primary/45 via-transparent to-bg-primary/80" />
 
         {/* Partículas flotantes */}
         <div className="absolute bottom-[20%] left-[15%]  w-1   h-1   rounded-full bg-gold/60 animate-particle-1" />
@@ -76,32 +73,37 @@ export function HeroSection({ barbershop }: HeroSectionProps) {
 
         {/* Aviso informativo — se activa desde el panel admin */}
         {barbershop.announcement_active && barbershop.announcement_text && (
-          <div className="mb-7 sm:mb-10 mx-auto max-w-md rounded-2xl border border-gold/40 bg-bg-primary/80 backdrop-blur-sm px-5 py-4">
-            <p className="text-gold text-base sm:text-xl font-bold leading-snug whitespace-pre-line">
+          <div className="glass-strong mb-7 sm:mb-10 mx-auto max-w-md rounded-3xl px-5 py-4 text-left">
+            <div className="flex items-center gap-2 mb-1.5">
+              <Info size={13} className="text-gold flex-shrink-0" />
+              <span className="text-[10px] font-bold tracking-[0.12em] text-gold">AVISO</span>
+            </div>
+            <p className="text-white text-base sm:text-lg font-semibold leading-snug whitespace-pre-line">
               {barbershop.announcement_text}
             </p>
           </div>
         )}
 
         {/* CTA */}
-        <Link
+        <SheetLink
           href="/agendar"
-          className="inline-flex items-center justify-center bg-gold text-bg-primary font-bold text-sm sm:text-lg py-3 sm:py-4 px-8 sm:px-10 rounded-2xl hover:bg-gold-light transition-all active:scale-95 shadow-xl shadow-gold/40 ring-1 ring-gold/30"
+          className="glass-gold inline-flex items-center justify-center gap-2 text-bg-primary font-bold text-sm sm:text-lg py-3.5 sm:py-4 px-9 sm:px-11 rounded-full hover:brightness-110 transition-all active:scale-95"
         >
           Agendar ahora
-        </Link>
+          <ArrowRight size={17} strokeWidth={2.4} />
+        </SheetLink>
 
         {/* Info secundaria */}
-        <div className="flex flex-col items-center justify-center gap-2.5 sm:gap-4 mt-6 sm:mt-8 text-xs sm:text-sm text-text-muted">
+        <div className="glass mt-6 sm:mt-8 mx-auto max-w-xs rounded-3xl px-5 py-3.5 flex flex-col gap-2 text-xs sm:text-sm text-white/80">
           {barbershop.address && (
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-2.5">
               <MapPin size={13} className="text-gold flex-shrink-0" />
-              <span>{barbershop.address}</span>
+              <span className="text-left">{barbershop.address}</span>
             </div>
           )}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2.5">
             <Clock size={13} className="text-gold flex-shrink-0" />
-            <span>Lun – Sáb  8:30 am – 8:30 pm</span>
+            <span>Lun – Sáb · 8:30 am – 8:30 pm</span>
           </div>
         </div>
 
@@ -110,30 +112,27 @@ export function HeroSection({ barbershop }: HeroSectionProps) {
             href={waLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 mt-4 text-whatsapp text-sm font-medium hover:underline"
+            className="glass inline-flex items-center gap-2 mt-3 px-5 py-2.5 rounded-full text-whatsapp text-sm font-semibold hover:bg-white/10 transition-all active:scale-95"
           >
             <MessageCircle size={15} />
             Contactar por WhatsApp
           </a>
         )}
 
-        {/* Botón ver planes */}
-        <div className="mt-3 sm:mt-4">
+        {/* Accesos secundarios */}
+        <div className="flex items-center justify-center gap-2.5 mt-3 flex-wrap">
           <button
             onClick={() => document.getElementById('planes')?.scrollIntoView({ behavior: 'smooth' })}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-gold/30 bg-gold/10 text-gold text-sm font-semibold hover:bg-gold/20 hover:border-gold/50 transition-all active:scale-95 group"
+            className="glass inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-gold text-sm font-semibold hover:bg-white/10 transition-all active:scale-95 group"
           >
             <Crown size={14} />
-            Ver planes de suscripción
+            Planes
             <ChevronDown size={14} className="group-hover:translate-y-0.5 transition-transform" />
           </button>
-        </div>
 
-        {/* Botón cancelar cita */}
-        <div className="mt-3">
           <button
             onClick={() => document.getElementById('cancelar')?.scrollIntoView({ behavior: 'smooth' })}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-border bg-bg-secondary/60 text-text-secondary text-sm font-semibold hover:text-text-primary hover:border-border-light transition-all active:scale-95 group"
+            className="glass inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-white/85 text-sm font-semibold hover:bg-white/10 transition-all active:scale-95 group"
           >
             <KeyRound size={14} />
             Cancelar cita

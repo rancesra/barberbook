@@ -20,14 +20,14 @@ export function Button({
   ...props
 }: ButtonProps) {
   const base =
-    'inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed select-none'
+    'inline-flex items-center justify-center font-semibold rounded-full transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed select-none'
 
   const variants = {
-    primary: 'bg-gold text-bg-primary hover:bg-gold-light shadow-[0_4px_16px_-4px_rgba(201,168,76,0.4)]',
-    secondary: 'bg-bg-secondary text-text-primary border border-border hover:border-border-light',
-    ghost: 'text-text-secondary hover:text-text-primary hover:bg-bg-secondary',
-    danger: 'bg-red-600 text-white hover:bg-red-500',
-    whatsapp: 'bg-whatsapp text-white hover:bg-green-500',
+    primary: 'glass-gold text-bg-primary hover:brightness-110',
+    secondary: 'glass text-text-primary hover:bg-white/10',
+    ghost: 'text-text-secondary hover:text-text-primary hover:bg-white/5',
+    danger: 'bg-red-600/90 text-white border border-red-400/30 hover:bg-red-500',
+    whatsapp: 'bg-whatsapp/90 text-white border border-white/20 hover:bg-whatsapp',
   }
 
   const sizes = {

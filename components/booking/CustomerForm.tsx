@@ -30,7 +30,7 @@ export function CustomerForm({ defaultValues, onSubmit, isLoading }: CustomerFor
   }, [defaultValues, reset])
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="animate-slide-up">
+    <form onSubmit={handleSubmit(onSubmit)} className="ios-step">
       <div className="flex flex-col gap-4">
         {/* Nombre */}
         <div>

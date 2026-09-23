@@ -45,7 +45,7 @@ export default function ServiciosPage() {
   )
 
   return (
-    <div className="p-6 max-w-4xl">
+    <div className="p-6 max-w-4xl ios-push">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-text-primary">Servicios</h1>

@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { BookingFlow } from '@/components/booking/BookingFlow'
+import { SheetPage } from '@/components/ui/SheetPage'
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -68,11 +69,13 @@ export default async function AgendarPage({ params, searchParams }: Props) {
     : undefined
 
   return (
-    <BookingFlow
-      barbershop={barbershop}
-      barbers={barbers}
-      services={services}
-      initialBarberId={validBarberId}
-    />
+    <SheetPage>
+      <BookingFlow
+        barbershop={barbershop}
+        barbers={barbers}
+        services={services}
+        initialBarberId={validBarberId}
+      />
+    </SheetPage>
   )
 }

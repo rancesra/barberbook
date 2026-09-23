@@ -34,11 +34,55 @@
 }
 
 @layer components {
+  /* ── Sistema "liquid glass" ──
+     Paneles translúcidos que dejan ver el fondo difuminado, con un borde de
+     luz arriba. El dorado se reserva para acentos; las superficies grandes
+     van en vidrio neutro para que el dorado no pierda fuerza. */
+  .glass {
+    background-color: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(22px) saturate(160%);
+    -webkit-backdrop-filter: blur(22px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.20),
+      0 10px 28px rgba(0, 0, 0, 0.36);
+  }
+
+  /* Para panales sobre foto o que necesitan más presencia */
+  .glass-strong {
+    background-color: rgba(255, 255, 255, 0.10);
+    backdrop-filter: blur(28px) saturate(175%);
+    -webkit-backdrop-filter: blur(28px) saturate(175%);
+    border: 1px solid rgba(255, 255, 255, 0.20);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.28),
+      0 14px 36px rgba(0, 0, 0, 0.45);
+  }
+
+  /* Vidrio oscuro: barras flotantes sobre contenido que scrollea */
+  .glass-dark {
+    background-color: rgba(26, 26, 28, 0.62);
+    backdrop-filter: blur(30px) saturate(180%);
+    -webkit-backdrop-filter: blur(30px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.24),
+      0 16px 40px rgba(0, 0, 0, 0.50);
+  }
+
+  /* Acento dorado: solo para el botón principal y lo seleccionado */
+  .glass-gold {
+    background-image: linear-gradient(180deg, rgba(226, 196, 122, 0.95) 0%, rgba(184, 149, 65, 0.95) 100%);
+    border: 1px solid rgba(255, 240, 200, 0.50);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.55),
+      0 12px 30px rgba(201, 168, 76, 0.28);
+  }
+
   .btn-primary {
-    @apply bg-gold text-bg-primary font-semibold py-3.5 px-6 rounded-xl
-           transition-all duration-200 hover:bg-gold-light active:scale-95
-           disabled:opacity-50 disabled:cursor-not-allowed text-center w-full
-           shadow-[0_4px_18px_-4px_rgba(201,168,76,0.4)];
+    @apply glass-gold text-bg-primary font-semibold py-3.5 px-6 rounded-full
+           transition-all duration-200 hover:brightness-110 active:scale-95
+           disabled:opacity-50 disabled:cursor-not-allowed text-center w-full;
   }
 
   .btn-secondary {
@@ -54,13 +98,13 @@
   }
 
   .card {
-    @apply bg-bg-secondary border border-border rounded-2xl shadow-[0_2px_12px_-2px_rgba(0,0,0,0.4)];
+    @apply glass rounded-3xl;
   }
 
   .input-field {
-    @apply w-full bg-bg-secondary border border-border rounded-xl px-4 py-3.5
+    @apply w-full bg-black/25 border border-white/15 rounded-2xl px-4 py-3.5
            text-text-primary placeholder-text-muted text-base
-           focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold
+           focus:outline-none focus:border-gold/60 focus:ring-1 focus:ring-gold/40
            transition-colors duration-200;
   }
 
@@ -90,6 +134,212 @@
 
   .badge-closed {
     @apply bg-gray-800 text-text-muted text-xs font-medium px-2 py-0.5 rounded-full;
+  }
+}
+
+/* ── Movimiento estilo iOS ──
+   La curva (0.32, 0.72, 0, 1) es la que usa iOS para empujar pantallas:
+   arranca rápido y frena suave, sin rebote. */
+.ios-push {
+  animation: iosPush 0.42s cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+@keyframes iosPush {
+  from { transform: translateX(28px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+/* Entrada de cada paso dentro de una misma pantalla */
+.ios-step {
+  animation: iosStep 0.38s cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+@keyframes iosStep {
+  from { transform: translateY(14px) scale(0.985); opacity: 0; }
+  to   { transform: translateY(0)    scale(1);     opacity: 1; }
+}
+
+/* Presentación modal de iOS: la pantalla actual se va hacia atrás
+   y la nueva sube desde abajo como una tarjeta. */
+.ios-page-recede {
+  transform: scale(0.93) translateY(-10px);
+  opacity: 0.5;
+  border-radius: 28px;
+  overflow: hidden;
+  transform-origin: top center;
+  will-change: transform, opacity;
+  transition:
+    transform 0.45s cubic-bezier(0.32, 0.72, 0, 1),
+    opacity 0.45s ease,
+    border-radius 0.45s ease;
+}
+
+/* Mientras la pantalla se va hacia atrás, apagamos lo que cuesta caro:
+   cada backdrop-filter obliga al navegador a recomponer el fondo en cada
+   fotograma, y las partículas del hero siguen animándose por debajo.
+   Sin esto la transición va a tirones en el celular. */
+.ios-page-recede .glass,
+.ios-page-recede .glass-strong,
+.ios-page-recede .glass-dark,
+.ios-page-recede [class*='backdrop-blur'] {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.ios-page-recede * {
+  animation-play-state: paused !important;
+}
+
+.ios-modal-in {
+  animation: iosModalIn 0.52s cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+@keyframes iosModalIn {
+  from {
+    transform: translateY(100%);
+    border-radius: 28px 28px 0 0;
+  }
+  to {
+    transform: translateY(0);
+    border-radius: 0;
+  }
+}
+
+/* Aparecer "de la nada": sube, se enfoca y se materializa */
+.ios-reveal {
+  animation: iosReveal 0.55s cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+@keyframes iosReveal {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.97);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+/* Cascada: los hijos aparecen uno tras otro sin tocar el marcado.
+   Sin blur a propósito: son muchos elementos animando a la vez y el
+   desenfoque por elemento es lo que más pesa en el celular. */
+.ios-stagger > * {
+  animation: iosStaggerIn 0.5s cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+@keyframes iosStaggerIn {
+  from { opacity: 0; transform: translateY(16px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.ios-stagger > *:nth-child(1) { animation-delay: 0.04s; }
+.ios-stagger > *:nth-child(2) { animation-delay: 0.10s; }
+.ios-stagger > *:nth-child(3) { animation-delay: 0.16s; }
+.ios-stagger > *:nth-child(4) { animation-delay: 0.22s; }
+.ios-stagger > *:nth-child(5) { animation-delay: 0.28s; }
+.ios-stagger > *:nth-child(6) { animation-delay: 0.34s; }
+.ios-stagger > *:nth-child(n+7) { animation-delay: 0.40s; }
+
+/* Aparición con rebote corto, para confirmaciones (palomita, badges) */
+.ios-pop {
+  animation: iosPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@keyframes iosPop {
+  from { transform: scale(0.2); opacity: 0; }
+  60%  { transform: scale(1.12); opacity: 1; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+/* Dígitos del código: entran uno por uno */
+.ios-digit {
+  display: inline-block;
+  animation: iosDigit 0.5s cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+@keyframes iosDigit {
+  from { opacity: 0; transform: translateY(12px) scale(0.8); filter: blur(8px); }
+  to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+
+/* Confeti dorado: cae y gira mientras se desvanece */
+.confetti-fall {
+  animation-name: confettiFall;
+  animation-timing-function: cubic-bezier(0.3, 0.6, 0.5, 1);
+  animation-fill-mode: forwards;
+}
+@keyframes confettiFall {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 0; }
+  10%  { opacity: 1; }
+  100% { transform: translateY(105vh) rotate(540deg); opacity: 0; }
+}
+
+/* Cupos escasos: latido suave para avisar sin gritar */
+.ios-heartbeat {
+  animation: iosHeartbeat 1.9s ease-in-out infinite;
+}
+@keyframes iosHeartbeat {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(1.14); opacity: 0.75; }
+}
+
+/* Letras del logo: se escriben una por una */
+.ios-letter {
+  display: inline-block;
+  animation: iosLetter 0.6s cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+@keyframes iosLetter {
+  from { opacity: 0; transform: translateY(14px) scale(0.92); filter: blur(8px); }
+  to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+
+/* La palomita del éxito se dibuja sola */
+.ios-draw circle,
+.ios-draw path,
+.ios-draw polyline {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: iosDraw 0.9s cubic-bezier(0.32, 0.72, 0, 1) 0.15s both;
+}
+@keyframes iosDraw {
+  to { stroke-dashoffset: 0; }
+}
+
+/* Hoja que sube desde abajo */
+.ios-sheet {
+  animation: iosSheet 0.40s cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+@keyframes iosSheet {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+.ios-fade {
+  animation: iosFade 0.28s ease-out both;
+}
+@keyframes iosFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Escala al presionar, como los botones del sistema */
+.ios-press {
+  transition: transform 0.18s cubic-bezier(0.32, 0.72, 0, 1), filter 0.18s ease;
+}
+.ios-press:active {
+  transform: scale(0.96);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ios-push, .ios-step, .ios-sheet, .ios-fade, .ios-modal-in,
+  .ios-reveal, .ios-stagger > *, .ios-pop, .ios-digit, .ios-draw circle,
+  .ios-draw path, .ios-draw polyline, .confetti-fall, .ios-heartbeat,
+  .ios-letter {
+    animation: none;
+  }
+  .ios-draw circle, .ios-draw path, .ios-draw polyline {
+    stroke-dashoffset: 0;
+  }
+  .ios-press:active {
+    transform: none;
+  }
+  .ios-page-recede {
+    transform: none;
+    opacity: 1;
   }
 }
 

@@ -13,6 +13,8 @@ import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { formatPrice, formatDuration } from '@/lib/utils'
+import { haptic } from '@/lib/haptics'
+import { CountUpPrice } from '@/components/ui/CountUpPrice'
 import type {
   Barbershop,
   Barber,
@@ -33,23 +35,40 @@ function SelectionChip({
   label,
   value,
   sub,
+  price,
+  morphName,
   onEdit,
 }: {
   label: string
   value: string
   sub?: string
+  price?: number | null
+  morphName?: string
   onEdit: () => void
 }) {
   return (
-    <div className="flex items-center justify-between px-4 py-3 bg-bg-secondary rounded-2xl border border-border mb-3">
+    <div
+      className="glass flex items-center justify-between px-4 py-3 rounded-3xl mb-3 ios-reveal"
+      style={morphName ? ({ viewTransitionName: morphName } as React.CSSProperties) : undefined}
+    >
       <div className="flex items-center gap-3">
-        <div className="w-6 h-6 rounded-full bg-gold flex items-center justify-center flex-shrink-0">
+        <div className="w-6 h-6 rounded-full bg-gold flex items-center justify-center flex-shrink-0 ios-pop">
           <Check size={12} className="text-bg-primary" />
         </div>
         <div>
           <p className="text-[11px] text-text-muted uppercase tracking-wide">{label}</p>
           <p className="text-sm font-semibold text-text-primary leading-tight">{value}</p>
-          {sub && <p className="text-[11px] text-text-muted mt-0.5">{sub}</p>}
+          {sub && (
+            <p className="text-[11px] text-text-muted mt-0.5">
+              {sub}
+              {price != null && (
+                <>
+                  {' · '}
+                  <CountUpPrice value={price} className="text-gold font-semibold" />
+                </>
+              )}
+            </p>
+          )}
         </div>
       </div>
       <button
@@ -66,8 +85,8 @@ function SelectionChip({
 // Título de sección activa
 function SectionTitle({ number, title, sub }: { number: number; title: string; sub: string }) {
   return (
-    <div className="flex items-center gap-3 mb-5">
-      <div className="w-7 h-7 rounded-full bg-gold flex items-center justify-center flex-shrink-0">
+    <div className="flex items-center gap-3 mb-5 ios-reveal">
+      <div className="w-7 h-7 rounded-full bg-gold flex items-center justify-center flex-shrink-0 ios-pop">
         <span className="text-xs font-bold text-bg-primary">{number}</span>
       </div>
       <div>
@@ -144,20 +163,41 @@ export function BookingFlow({
       .finally(() => setLoadingAvailability(false))
   }, [selectedServiceId, defaultBarberId, barbershop.id])
 
+  /**
+   * Con View Transitions el navegador interpola entre la tarjeta del servicio
+   * y la fila de resumen (comparten view-transition-name), así que parece que
+   * una se transforma en la otra. Donde no exista, cambia normal.
+   */
+  const withMorph = (update: () => void) => {
+    const doc = document as Document & {
+      startViewTransition?: (cb: () => void) => void
+    }
+    if (typeof doc.startViewTransition === 'function') {
+      doc.startViewTransition(update)
+    } else {
+      update()
+    }
+  }
+
   const handleServiceSelect = (serviceId: string) => {
-    setSelectedServiceId(serviceId)
-    setSelectedDate(null)
-    setSelectedSlot(null)
+    haptic('light')
+    withMorph(() => {
+      setSelectedServiceId(serviceId)
+      setSelectedDate(null)
+      setSelectedSlot(null)
+    })
     scrollTo(dateRef)
   }
 
   const handleDateSelect = (date: string) => {
+    haptic('light')
     setSelectedDate(date)
     setSelectedSlot(null)
     scrollTo(timeRef)
   }
 
   const handleSlotSelect = (slot: TimeSlot) => {
+    haptic('medium')
     setSelectedSlot(slot)
     scrollTo(formRef)
   }
@@ -193,6 +233,7 @@ export function BookingFlow({
 
       // Guardar datos del cliente para próximas citas
       localStorage.setItem('barberbook_customer', JSON.stringify({ name: data.name, phone: data.phone }))
+      haptic('success')
       setSuccess(true)
       setAppointmentId(result.appointment?.id ?? null)
       setCancellationCode(result.appointment?.cancellation_code ?? null)
@@ -241,11 +282,11 @@ export function BookingFlow({
   return (
     <div className="min-h-screen bg-bg-primary">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-bg-primary/95 backdrop-blur border-b border-border">
+      <div className="glass-dark sticky top-[calc(env(safe-area-inset-top)+10px)] z-10 mx-3 mt-[calc(env(safe-area-inset-top)+10px)] rounded-full">
         <div className="max-w-lg mx-auto px-4 py-3 flex items-center gap-3">
           <Link
             href={returnToAdmin ? '/admin' : '/'}
-            className="p-1.5 -ml-1.5 rounded-xl hover:bg-bg-secondary transition-colors"
+            className="p-1.5 -ml-1.5 rounded-full hover:bg-white/10 transition-colors"
           >
             <ChevronLeft size={20} className="text-text-secondary" />
           </Link>
@@ -262,7 +303,7 @@ export function BookingFlow({
 
         {/* Tarjeta de Andrés */}
         {selectedBarber && (
-          <div className="flex items-center gap-4 p-4 rounded-2xl border border-gold/20 bg-gold/5 mb-2">
+          <div className="glass flex items-center gap-4 p-4 rounded-3xl mb-2">
             <div className="flex-shrink-0">
               {selectedBarber.photo_url ? (
                 <Image
@@ -273,7 +314,7 @@ export function BookingFlow({
                   className="rounded-xl object-cover w-16 h-16"
                 />
               ) : (
-                <div className="w-16 h-16 rounded-xl bg-bg-tertiary flex items-center justify-center">
+                <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center">
                   <Scissors size={24} className="text-gold" />
                 </div>
               )}
@@ -293,7 +334,7 @@ export function BookingFlow({
 
         {/* Error global */}
         {error && (
-          <div className="mb-4 p-3 bg-red-900/30 border border-red-800 rounded-xl">
+          <div className="mb-4 p-3 bg-red-900/40 border border-red-500/40 rounded-2xl">
             <p className="text-red-400 text-sm">{error}</p>
             <button onClick={() => setError(null)} className="text-xs text-red-400/70 mt-1 underline">
               Cerrar
@@ -306,8 +347,10 @@ export function BookingFlow({
           {selectedServiceId ? (
             <SelectionChip
               label="Servicio"
+              morphName="servicio-elegido"
               value={selectedService?.name ?? ''}
-              sub={selectedService ? `${formatDuration(selectedService.duration_minutes)} · ${formatPrice(selectedService.price)}` : undefined}
+              sub={selectedService ? formatDuration(selectedService.duration_minutes) : undefined}
+              price={selectedService?.price ?? null}
               onEdit={() => {
                 setSelectedServiceId(null)
                 setSelectedDate(null)

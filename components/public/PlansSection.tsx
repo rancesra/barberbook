@@ -39,7 +39,7 @@ export function PlansSection({ plans, barbershop }: PlansSectionProps) {
   return (
     <section className="px-4 py-12 max-w-5xl mx-auto">
       <div className="text-center mb-10">
-        <div className="inline-flex items-center gap-2 bg-gold/10 border border-gold/20 rounded-full px-4 py-1.5 mb-4">
+        <div className="glass inline-flex items-center gap-2 rounded-full px-4 py-1.5 mb-4">
           <Crown size={14} className="text-gold" />
           <span className="text-gold text-xs font-medium">Planes de suscripción</span>
         </div>
@@ -55,17 +55,17 @@ export function PlansSection({ plans, barbershop }: PlansSectionProps) {
         {plans.map((plan) => (
           <div
             key={plan.id}
-            className={`relative rounded-2xl border flex flex-col transition-all duration-200 ${
+            className={`relative rounded-3xl flex flex-col transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-1 ios-step ${
               plan.is_popular
-                ? 'border-gold bg-gold/5 scale-[1.02]'
-                : 'border-border bg-bg-secondary'
+                ? 'glass-strong border-gold/45 ring-1 ring-gold/25 sm:scale-[1.03]'
+                : 'glass hover:bg-white/10'
             }`}
           >
             {/* Badge más popular */}
             {plan.is_popular && (
               <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                <span className="bg-gold text-bg-primary text-xs font-bold px-4 py-1 rounded-full whitespace-nowrap">
-                  ⭐ Más popular
+                <span className="glass-gold text-bg-primary text-xs font-bold px-4 py-1.5 rounded-full whitespace-nowrap">
+                  Más popular
                 </span>
               </div>
             )}
@@ -113,10 +113,10 @@ export function PlansSection({ plans, barbershop }: PlansSectionProps) {
                 href={buildPlanWhatsApp(plan)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-semibold text-sm transition-all duration-200 active:scale-95 ${
+                className={`w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-full font-semibold text-sm transition-all duration-200 ios-press ${
                   plan.is_popular
-                    ? 'bg-gold text-bg-primary hover:bg-gold-light'
-                    : 'bg-bg-tertiary text-text-primary border border-border hover:border-border-light'
+                    ? 'glass-gold text-bg-primary hover:brightness-110'
+                    : 'glass text-text-primary hover:bg-white/10'
                 }`}
               >
                 <MessageCircle size={15} />

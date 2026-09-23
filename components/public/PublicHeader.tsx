@@ -20,8 +20,8 @@ export function PublicHeader({ barbershop }: PublicHeaderProps) {
     : null
 
   return (
-    <header className="sticky top-0 z-50 bg-bg-primary/90 backdrop-blur-md border-b border-border pt-[env(safe-area-inset-top)]">
-      <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
+    <header className="sticky top-0 z-50 pt-[calc(env(safe-area-inset-top)+10px)] px-3 pb-2">
+      <div className="glass-dark max-w-5xl mx-auto rounded-full px-3 h-14 flex items-center justify-between gap-3">
 
         {/* Logo + nombre */}
         <Link href="/" className="flex items-center gap-2.5">

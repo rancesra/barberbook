@@ -2,7 +2,11 @@
 import { useEffect, useState } from 'react'
 import { format, parseISO, isPast, isSameDay, addDays } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Phone, MessageCircle, Trash2, Plus, KeyRound } from 'lucide-react'
+import { Phone, MessageCircle, Trash2, Plus, KeyRound, Check } from 'lucide-react'
+import { SegmentedControl } from '@/components/ui/SegmentedControl'
+import { SwipeableRow } from '@/components/ui/SwipeableRow'
+import { useConfirm } from '@/components/ui/ConfirmSheet'
+import { LargeTitle } from '@/components/ui/LargeTitle'
 import { toZonedTime } from 'date-fns-tz'
 import { createClient } from '@/lib/supabase/client'
 import { buildWhatsAppLink } from '@/lib/utils'
@@ -43,6 +47,7 @@ export default function ReservasPage() {
   const [tab, setTab] = useState<'upcoming' | 'past' | 'all'>('upcoming')
   const [statusFilter, setStatusFilter] = useState('all')
   const [mapsUrl, setMapsUrl] = useState<string | null>(null)
+  const { confirm: confirmAction, sheet: confirmSheet } = useConfirm()
 
   const load = async () => {
     const supabase = createClient()
@@ -75,11 +80,15 @@ export default function ReservasPage() {
     await load()
   }
 
-  const deleteAppointment = async (id: string) => {
-    if (!confirm('¿Eliminar esta reserva?')) return
-    const supabase = createClient()
-    await supabase.from('appointments').delete().eq('id', id)
-    await load()
+  const deleteAppointment = (id: string) => {
+    confirmAction(
+      { title: '¿Eliminar esta reserva?', message: 'Esta acción no se puede deshacer.', confirmLabel: 'Eliminar', destructive: true },
+      async () => {
+        const supabase = createClient()
+        await supabase.from('appointments').delete().eq('id', id)
+        await load()
+      }
+    )
   }
 
   let filtered = appointments
@@ -112,36 +121,42 @@ export default function ReservasPage() {
   )
 
   return (
-    <div className="p-6 max-w-4xl">
-      <div className="flex items-start justify-between mb-6 gap-4 flex-wrap">
-        <div>
-          <h1 className="text-2xl font-bold text-text-primary">Mis reservas</h1>
-          <p className="text-text-secondary text-sm mt-1">{appointments.length} reservas en total</p>
-        </div>
-        <Link
-          href="/agendar?from=admin"
-          className="flex items-center gap-1.5 bg-gold text-bg-primary text-xs font-bold px-3 py-2 rounded-lg hover:bg-gold-light transition-colors"
-        >
-          <Plus size={14} />
-          Nueva cita
-        </Link>
+    <div className="p-6 max-w-4xl ios-push">
+      <div className="mb-6">
+        <LargeTitle
+          title="Mis reservas"
+          subtitle={`${appointments.length} reservas en total`}
+          action={
+            <Link
+              href="/agendar?from=admin"
+              className="glass-gold flex items-center gap-1.5 text-bg-primary text-xs font-bold px-4 py-2.5 rounded-full hover:brightness-110 transition-all ios-press flex-shrink-0"
+            >
+              <Plus size={14} />
+              Nueva cita
+            </Link>
+          }
+        />
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-4 bg-bg-secondary p-1 rounded-xl w-fit">
-        {([['upcoming','Próximas'],['past','Pasadas'],['all','Todas']] as const).map(([key, label]) => (
-          <button key={key} onClick={() => setTab(key)}
-            className={`text-xs px-4 py-2 rounded-lg font-medium transition-colors ${tab === key ? 'bg-gold text-bg-primary' : 'text-text-secondary hover:text-text-primary'}`}>
-            {label}
-          </button>
-        ))}
+      <div className="mb-4">
+        <SegmentedControl
+          ariaLabel="Filtrar reservas por fecha"
+          value={tab}
+          onChange={setTab}
+          options={[
+            { value: 'upcoming', label: 'Próximas' },
+            { value: 'past', label: 'Pasadas' },
+            { value: 'all', label: 'Todas' },
+          ] as const}
+        />
       </div>
 
       {/* Filtros estado */}
       <div className="flex gap-2 flex-wrap mb-4">
         {['all','confirmed','completed','cancelled'].map(s => (
           <button key={s} onClick={() => setStatusFilter(s)}
-            className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-colors ${statusFilter === s ? 'bg-bg-tertiary text-text-primary border border-border-light' : 'text-text-muted hover:text-text-secondary'}`}>
+            className={`text-xs px-3.5 py-2 rounded-full font-medium transition-colors ios-press ${statusFilter === s ? 'glass text-text-primary' : 'text-text-muted hover:text-text-secondary'}`}>
             {s === 'all' ? 'Todos los estados' : STATUS_LABELS[s]}
           </button>
         ))}
@@ -158,7 +173,25 @@ export default function ReservasPage() {
           const past = isPast(startDate)
 
           return (
-            <div key={appt.id} className={`card p-4 ${past ? 'opacity-70' : ''}`}>
+            <div key={appt.id} className="mb-3 ios-step">
+              <SwipeableRow
+                actions={[
+                  ...(!past && appt.status !== 'completed' && appt.status !== 'cancelled'
+                    ? [{
+                        label: 'Completar',
+                        icon: <Check size={17} />,
+                        onClick: () => updateStatus(appt.id, 'completed'),
+                      }]
+                    : []),
+                  {
+                    label: 'Eliminar',
+                    icon: <Trash2 size={17} />,
+                    onClick: () => deleteAppointment(appt.id),
+                    variant: 'destructive' as const,
+                  },
+                ]}
+              >
+            <div className={`card p-4 ${past ? 'opacity-70' : ''}`}>
               <div className="flex items-start justify-between gap-4 flex-wrap">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap mb-1">
@@ -205,6 +238,8 @@ export default function ReservasPage() {
                 </div>
               </div>
             </div>
+              </SwipeableRow>
+            </div>
           )
         })}
           </div>
@@ -215,6 +250,8 @@ export default function ReservasPage() {
           </div>
         )}
       </div>
+
+      {confirmSheet}
     </div>
   )
 }

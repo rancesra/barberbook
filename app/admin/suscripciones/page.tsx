@@ -81,7 +81,7 @@ export default function SuscripcionesPage() {
   }
 
   return (
-    <div className="p-6 max-w-6xl">
+    <div className="p-6 max-w-6xl ios-push">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-text-primary">Suscripciones</h1>
@@ -91,7 +91,7 @@ export default function SuscripcionesPage() {
         </div>
         <a
           href="/admin/suscripciones/nueva"
-          className="flex items-center justify-center gap-2 bg-gold text-bg-primary text-sm font-semibold py-2.5 px-4 rounded-xl hover:bg-gold-light transition-colors self-start"
+          className="glass-gold flex items-center justify-center gap-2 text-bg-primary text-sm font-semibold py-2.5 px-5 rounded-full hover:brightness-110 transition-all ios-press self-start"
         >
           <Plus size={16} />
           Nueva suscripción
@@ -107,7 +107,7 @@ export default function SuscripcionesPage() {
           return (
             <div
               key={sub.id}
-              className={`card p-4 cursor-pointer transition-all hover:border-border-light ${selectedId === sub.id ? 'border-gold' : ''}`}
+              className={`card p-4 cursor-pointer transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:bg-white/10 ios-step ${selectedId === sub.id ? 'border-gold/50 ring-1 ring-gold/25' : ''}`}
               onClick={() => setSelectedId(selectedId === sub.id ? null : sub.id)}
             >
               <div className="flex items-start justify-between gap-3">
@@ -157,7 +157,7 @@ export default function SuscripcionesPage() {
 
               {/* Acciones expandidas */}
               {selectedId === sub.id && (
-                <div className="mt-4 pt-4 border-t border-border space-y-3" onClick={e => e.stopPropagation()}>
+                <div className="mt-4 pt-4 border-t border-white/10 space-y-3 ios-step" onClick={e => e.stopPropagation()}>
                   {/* WhatsApp buttons */}
                   {sub.customer_phone && (
                     <div className="flex gap-2">
@@ -168,7 +168,7 @@ export default function SuscripcionesPage() {
                         )}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-green-900/20 border border-green-800/30 text-green-400 text-xs font-medium hover:bg-green-900/30 transition-colors"
+                        className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-full bg-green-500/15 border border-green-400/25 text-green-400 text-xs font-medium hover:bg-green-500/25 transition-colors ios-press"
                       >
                         <MessageCircle size={12} />
                         Confirmar
@@ -182,7 +182,7 @@ export default function SuscripcionesPage() {
                         )}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-yellow-900/20 border border-yellow-800/30 text-yellow-400 text-xs font-medium hover:bg-yellow-900/30 transition-colors"
+                        className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-full bg-yellow-500/15 border border-yellow-400/25 text-yellow-400 text-xs font-medium hover:bg-yellow-500/25 transition-colors ios-press"
                       >
                         <MessageCircle size={12} />
                         Recordar ({daysLeft > 0 ? `${daysLeft}d` : 'Vencido'})
@@ -208,7 +208,7 @@ export default function SuscripcionesPage() {
                     {sub.status !== 'active' && (
                       <button
                         onClick={() => updateStatus(sub.id, 'active')}
-                        className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-green-900/20 border border-green-800/30 text-green-400 text-xs font-medium hover:bg-green-900/30 transition-colors"
+                        className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-full bg-green-500/15 border border-green-400/25 text-green-400 text-xs font-medium hover:bg-green-500/25 transition-colors ios-press"
                       >
                         <Check size={12} />
                         Activar
@@ -217,7 +217,7 @@ export default function SuscripcionesPage() {
                     {sub.status !== 'cancelled' && (
                       <button
                         onClick={() => updateStatus(sub.id, 'cancelled')}
-                        className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-red-900/20 border border-red-800/30 text-red-400 text-xs font-medium hover:bg-red-900/30 transition-colors"
+                        className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-full bg-red-500/15 border border-red-400/25 text-red-400 text-xs font-medium hover:bg-red-500/25 transition-colors ios-press"
                       >
                         <X size={12} />
                         Cancelar

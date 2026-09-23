@@ -32,12 +32,12 @@ export function DateSelector({ days, selectedDate, onSelect }: DateSelectorProps
   }
 
   return (
-    <div className="animate-slide-up">
+    <div className="ios-step">
       {/* Contenedor con flecha derecha */}
       <div className="relative -mx-4">
         <div
           ref={scrollRef}
-          className="flex gap-3 px-4 pb-3 overflow-x-auto scroll-smooth"
+          className="flex gap-3 px-4 pb-3 overflow-x-auto scroll-smooth ios-stagger"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {days.map((day) => {
@@ -52,10 +52,10 @@ export function DateSelector({ days, selectedDate, onSelect }: DateSelectorProps
                 onClick={() => isAvailable && onSelect(day.date)}
                 disabled={!isAvailable}
                 className={cn(
-                  'flex-shrink-0 w-[78px] flex flex-col items-center py-3.5 px-2 rounded-2xl border transition-all duration-200',
-                  isSelected && 'border-gold bg-gold/10',
-                  !isSelected && isAvailable && 'border-border bg-bg-secondary hover:border-border-light active:scale-95',
-                  !isAvailable && 'border-border bg-bg-secondary/50 opacity-50 cursor-not-allowed'
+                  'flex-shrink-0 w-[78px] flex flex-col items-center py-3.5 px-2 rounded-3xl transition-all duration-200',
+                  isSelected && 'glass-strong border-gold/50 ring-1 ring-gold/30',
+                  !isSelected && isAvailable && 'glass hover:bg-white/10 active:scale-95',
+                  !isAvailable && 'glass opacity-40 cursor-not-allowed'
                 )}
               >
                 <span

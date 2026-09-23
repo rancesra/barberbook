@@ -85,7 +85,7 @@ export default function ConfiguracionPage() {
   if (!barbershop) return null
 
   return (
-    <div className="p-6 max-w-2xl">
+    <div className="p-6 max-w-2xl ios-push">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-text-primary">Configuración</h1>
         <p className="text-text-secondary text-sm mt-1">

@@ -64,7 +64,7 @@ export function UpcomingAppointments({ appointments, mapsUrl }: { appointments: 
   }
 
   const deleteAppt = async (id: string) => {
-    if (!confirm('¿Eliminar esta reserva?')) return
+    if (!window.confirm('¿Eliminar esta reserva?')) return
     const supabase = createClient()
     await supabase.from('appointments').delete().eq('id', id)
     router.refresh()
@@ -104,7 +104,7 @@ export function UpcomingAppointments({ appointments, mapsUrl }: { appointments: 
             const startInTz = toZonedTime(parseISO(appt.start_time), TZ)
             const past = isPast(parseISO(appt.start_time))
             return (
-              <div key={appt.id} className={`flex items-center gap-3 px-5 py-3.5 ${past ? 'opacity-60' : ''}`}>
+              <div key={appt.id} className={`flex items-center gap-3 px-5 py-3.5 transition-colors hover:bg-white/5 ios-step ${past ? 'opacity-60' : ''}`}>
                 {/* Hora */}
                 <div className="flex-shrink-0 text-center w-12">
                   <p className="text-gold text-sm font-bold">{format(startInTz, 'h:mm')}</p>

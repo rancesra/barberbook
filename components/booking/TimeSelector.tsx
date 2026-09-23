@@ -14,7 +14,7 @@ export function TimeSelector({ slots, selectedSlot, onSelect, serviceName }: Tim
 
   if (availableSlots.length === 0) {
     return (
-      <div className="animate-slide-up">
+      <div className="ios-step">
         <div className="mt-6 text-center py-10">
           <div className="text-4xl mb-3">📅</div>
           <p className="text-text-secondary font-medium">No hay horarios disponibles</p>
@@ -25,14 +25,14 @@ export function TimeSelector({ slots, selectedSlot, onSelect, serviceName }: Tim
   }
 
   return (
-    <div className="animate-slide-up">
+    <div className="ios-step">
       {serviceName && (
         <p className="text-text-secondary text-sm mb-5">
           {availableSlots.length} horario{availableSlots.length !== 1 ? 's' : ''} para {serviceName}
         </p>
       )}
 
-      <div className="grid grid-cols-3 gap-2.5 mt-4">
+      <div className="grid grid-cols-3 gap-2.5 mt-4 ios-stagger">
         {availableSlots.map((slot) => {
           const isSelected =
             selectedSlot?.startTime === slot.startTime
@@ -42,10 +42,10 @@ export function TimeSelector({ slots, selectedSlot, onSelect, serviceName }: Tim
               key={slot.startTime}
               onClick={() => onSelect(slot)}
               className={cn(
-                'py-3.5 px-2 rounded-xl border text-sm font-semibold transition-all duration-200 active:scale-95',
+                'py-3.5 px-2 rounded-2xl text-sm font-semibold transition-all duration-200 active:scale-95',
                 isSelected
-                  ? 'border-gold bg-gold text-bg-primary'
-                  : 'border-border bg-bg-secondary text-text-primary hover:border-gold/50 hover:text-gold'
+                  ? 'glass-gold text-bg-primary scale-105'
+                  : 'glass text-text-primary hover:bg-white/10 hover:text-gold'
               )}
             >
               {slot.label}
