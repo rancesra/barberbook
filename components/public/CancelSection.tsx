@@ -49,7 +49,7 @@ export function CancelSection() {
   }
 
   return (
-    <section className="px-4 py-12 sm:py-16">
+    <section id="cancelar" className="px-4 py-12 sm:py-16 scroll-mt-20">
       <div className="max-w-md mx-auto">
         <div className="card p-6">
           {cancelled ? (
