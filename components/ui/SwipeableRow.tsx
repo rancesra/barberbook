@@ -17,8 +17,10 @@ const ACTION_WIDTH = 78
 
 /**
  * Fila que se desliza a la izquierda para revelar acciones, como en iOS.
- * Funciona con dedo y con mouse; las acciones siguen siendo botones reales,
- * así que también se alcanzan con teclado cuando la fila está abierta.
+ *
+ * Las acciones NO van detrás de la tarjeta: van justo afuera del borde
+ * derecho y entran deslizándose junto con ella. Si fueran detrás se verían
+ * a través del vidrio, que es translúcido.
  */
 export function SwipeableRow({ actions, children }: SwipeableRowProps) {
   const maxOffset = actions.length * ACTION_WIDTH
@@ -27,6 +29,11 @@ export function SwipeableRow({ actions, children }: SwipeableRowProps) {
   const startX = useRef(0)
   const startOffset = useRef(0)
   const moved = useRef(false)
+
+  const slide = {
+    transform: `translateX(-${offset}px)`,
+    transition: dragging ? 'none' : 'transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)',
+  }
 
   const onPointerDown = (e: React.PointerEvent) => {
     startX.current = e.clientX
@@ -39,8 +46,7 @@ export function SwipeableRow({ actions, children }: SwipeableRowProps) {
     if (!dragging) return
     const delta = startX.current - e.clientX
     if (Math.abs(delta) > 4) moved.current = true
-    const next = Math.min(maxOffset, Math.max(0, startOffset.current + delta))
-    setOffset(next)
+    setOffset(Math.min(maxOffset, Math.max(0, startOffset.current + delta)))
   }
 
   const endDrag = () => {
@@ -53,29 +59,6 @@ export function SwipeableRow({ actions, children }: SwipeableRowProps) {
 
   return (
     <div className="relative overflow-hidden rounded-3xl">
-      {/* Acciones detrás */}
-      <div className="absolute inset-y-0 right-0 flex">
-        {actions.map((action) => (
-          <button
-            key={action.label}
-            onClick={() => {
-              close()
-              action.onClick()
-            }}
-            style={{ width: ACTION_WIDTH }}
-            className={`flex flex-col items-center justify-center gap-1 text-[11px] font-semibold transition-colors ${
-              action.variant === 'destructive'
-                ? 'bg-red-600/85 text-white hover:bg-red-500'
-                : 'bg-white/15 text-text-primary hover:bg-white/25'
-            }`}
-          >
-            {action.icon}
-            {action.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Contenido deslizable */}
       <div
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
@@ -90,14 +73,37 @@ export function SwipeableRow({ actions, children }: SwipeableRowProps) {
             close()
           }
         }}
-        style={{
-          transform: `translateX(-${offset}px)`,
-          transition: dragging ? 'none' : 'transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)',
-          touchAction: 'pan-y',
-        }}
+        style={{ ...slide, touchAction: 'pan-y' }}
         className="relative"
       >
         {children}
+
+        {/* Acciones: fuera del borde derecho, entran con el mismo deslizamiento */}
+        <div
+          className="absolute top-0 bottom-0 left-full flex rounded-r-3xl overflow-hidden"
+          style={{ width: maxOffset }}
+        >
+          {actions.map((action) => (
+            <button
+              key={action.label}
+              onClick={() => {
+                close()
+                action.onClick()
+              }}
+              tabIndex={offset > 0 ? 0 : -1}
+              aria-hidden={offset === 0}
+              style={{ width: ACTION_WIDTH }}
+              className={`flex flex-col items-center justify-center gap-1 text-[11px] font-semibold transition-colors ${
+                action.variant === 'destructive'
+                  ? 'bg-red-600 text-white hover:bg-red-500'
+                  : 'bg-white/20 text-text-primary hover:bg-white/30'
+              }`}
+            >
+              {action.icon}
+              {action.label}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   )

@@ -18,7 +18,19 @@ export function HeroSection({ barbershop }: HeroSectionProps) {
 
       {/* ── Fondo animado CSS ── */}
       <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[url('/fondo2.webp')] bg-cover bg-center sm:bg-[url('/fondo.webp')]" />
+        {/* Como <img> y no como fondo CSS: el navegador la encuentra al leer el
+            HTML y la empieza a bajar de una, en vez de esperar a que el CSS se
+            descargue. Es lo que quitaba el "negro y luego la foto". */}
+        <picture>
+          <source media="(min-width: 640px)" srcSet="/fondo.webp" />
+          <img
+            src="/fondo2.webp"
+            alt=""
+            fetchPriority="high"
+            decoding="async"
+            className="absolute inset-0 w-full h-full object-cover object-center"
+          />
+        </picture>
 
         {/* Degradado de fondo — solo lo necesario para que el texto se lea */}
         <div className="absolute inset-0 bg-black/25" />
@@ -53,15 +65,13 @@ export function HeroSection({ barbershop }: HeroSectionProps) {
         {/* Logo texto */}
         <div className="flex flex-col items-center mb-7 sm:mb-10">
           <span
-            className="translate-x-[0.15em] text-6xl sm:text-8xl tracking-[0.3em] text-white drop-shadow-lg select-none leading-none"
-            style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 300 }}
+            className="font-display font-light translate-x-[0.15em] text-6xl sm:text-8xl tracking-[0.3em] text-white drop-shadow-lg select-none leading-none"
           >
             ARTIST
           </span>
           <div className="my-2" />
           <span
-            className="translate-x-[0.15em] text-4xl sm:text-5xl tracking-[0.5em] text-white/80 drop-shadow-lg select-none leading-none"
-            style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 300 }}
+            className="font-display font-light translate-x-[0.15em] text-4xl sm:text-5xl tracking-[0.5em] text-white/80 drop-shadow-lg select-none leading-none"
           >
             STUDIO
           </span>
