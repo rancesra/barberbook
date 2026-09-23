@@ -1,7 +1,7 @@
 'use client'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { CheckCircle, MapPin, MessageCircle, RefreshCw, LayoutDashboard, Home } from 'lucide-react'
+import { CheckCircle, MapPin, MessageCircle, RefreshCw, LayoutDashboard, Home, KeyRound } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { buildWhatsAppLink, buildBookingWhatsAppMessage } from '@/lib/utils'
 import Link from 'next/link'
@@ -18,6 +18,7 @@ interface BookingSuccessProps {
   onBookAnother: () => void
   returnToAdmin?: boolean
   appointmentId?: string | null
+  cancellationCode?: string | null
 }
 
 export function BookingSuccess({
@@ -31,6 +32,7 @@ export function BookingSuccess({
   onBookAnother,
   returnToAdmin,
   appointmentId,
+  cancellationCode,
 }: BookingSuccessProps) {
   const dateFormatted = format(
     parseISO(selectedDate + 'T00:00:00'),
@@ -45,6 +47,7 @@ export function BookingSuccess({
     date: dateFormatted,
     time: selectedSlot.label,
     barbershopName: barbershop.name,
+    cancellationCode,
   })
 
   const whatsappNumber = barber.phone || barbershop.whatsapp
@@ -88,6 +91,23 @@ export function BookingSuccess({
           )}
         </div>
       </div>
+
+      {/* Código de cancelación — solo para el cliente */}
+      {!returnToAdmin && cancellationCode && (
+        <div className="w-full card p-5 mb-6 border-gold/40">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <KeyRound size={16} className="text-gold" />
+            <p className="text-text-secondary text-sm font-medium">Tu código de cancelación</p>
+          </div>
+          <p className="text-4xl font-bold text-gold tracking-[0.3em] text-center mb-2 pl-[0.3em]">
+            {cancellationCode}
+          </p>
+          <p className="text-text-muted text-xs text-center leading-relaxed">
+            Guárdalo. Si no puedes venir, ingrésalo en la página principal para
+            cancelar tu cita y liberar el horario.
+          </p>
+        </div>
+      )}
 
       <div className="w-full flex flex-col gap-3">
         {returnToAdmin ? (

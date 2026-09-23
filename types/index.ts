@@ -21,6 +21,8 @@ export interface Barbershop {
   address: string | null
   google_maps_url: string | null
   google_maps_url2: string | null
+  announcement_text: string | null
+  announcement_active: boolean
   timezone: string
   primary_color: string
   accent_color: string
@@ -78,6 +80,7 @@ export interface Appointment {
   status: AppointmentStatus
   notes: string | null
   google_calendar_event_id: string | null
+  cancellation_code: string | null
   created_at: string
   updated_at: string
   // Relaciones opcionales

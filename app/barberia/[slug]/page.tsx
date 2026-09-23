@@ -5,6 +5,7 @@ import { PublicHeader } from '@/components/public/PublicHeader'
 import { HeroSection } from '@/components/public/HeroSection'
 import { PlansSection } from '@/components/public/PlansSection'
 import { LocationSection } from '@/components/public/LocationSection'
+import { CancelSection } from '@/components/public/CancelSection'
 import { PublicFooter } from '@/components/public/PublicFooter'
 
 interface Props {
@@ -62,6 +63,9 @@ export default async function BarbershopPage({ params }: Props) {
         )}
 
         <LocationSection barbershop={barbershop} />
+
+        {/* Cancelar cita con código */}
+        <CancelSection />
       </main>
       <PublicFooter barbershop={barbershop} />
     </div>

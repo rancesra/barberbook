@@ -29,8 +29,16 @@ export function buildBookingWhatsAppMessage(params: {
   date: string
   time: string
   barbershopName: string
+  cancellationCode?: string | null
 }): string {
-  return `Hola, soy *${params.customerName}*. Confirmo mi cita en *${params.barbershopName}* con ${params.barberName} para el dia *${params.date}* a las *${params.time}*. Servicio: ${params.serviceName}.`
+  const base = `Hola, soy *${params.customerName}*. Confirmo mi cita en *${params.barbershopName}* con ${params.barberName} para el dia *${params.date}* a las *${params.time}*. Servicio: ${params.serviceName}.`
+  if (!params.cancellationCode) return base
+  return `${base}\n\nMi codigo de cancelacion es *${params.cancellationCode}*.`
+}
+
+/** Código de 4 dígitos (1000–9999) que el cliente usa para cancelar su cita. */
+export function generateCancellationCode(): string {
+  return String(Math.floor(1000 + Math.random() * 9000))
 }
 
 export function cn(...classes: (string | undefined | null | false)[]): string {

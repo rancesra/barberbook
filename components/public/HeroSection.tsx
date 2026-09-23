@@ -74,6 +74,15 @@ export function HeroSection({ barbershop }: HeroSectionProps) {
           Agenda tu cita con Andrés en segundos
         </p>
 
+        {/* Aviso informativo — se activa desde el panel admin */}
+        {barbershop.announcement_active && barbershop.announcement_text && (
+          <div className="mb-7 sm:mb-10 mx-auto max-w-md rounded-2xl border border-gold/40 bg-bg-primary/80 backdrop-blur-sm px-5 py-4">
+            <p className="text-gold text-base sm:text-xl font-bold leading-snug whitespace-pre-line">
+              {barbershop.announcement_text}
+            </p>
+          </div>
+        )}
+
         {/* CTA */}
         <Link
           href="/agendar"

@@ -5,7 +5,29 @@ import { createAdminClient } from '@/lib/supabase/server'
 import { calculateAvailability } from '@/lib/availability'
 import { sendWhatsAppReminder } from '@/lib/sent'
 import { sendPushToAdmin } from '@/lib/push'
+import { generateCancellationCode } from '@/lib/utils'
 import { z } from 'zod'
+
+/**
+ * Genera un código de 4 dígitos que no colisione con el de otra cita futura
+ * sin cancelar (si colisionara, no sabríamos cuál cita cancelar).
+ */
+async function generateUniqueCancellationCode(
+  supabase: ReturnType<typeof createAdminClient>
+): Promise<string> {
+  for (let i = 0; i < 10; i++) {
+    const code = generateCancellationCode()
+    const { data } = await supabase
+      .from('appointments')
+      .select('id')
+      .eq('cancellation_code', code)
+      .neq('status', 'cancelled')
+      .gte('start_time', new Date().toISOString())
+      .limit(1)
+    if (!data || data.length === 0) return code
+  }
+  return generateCancellationCode()
+}
 
 const CreateAppointmentSchema = z.object({
   barbershop_id: z.string().uuid(),
@@ -122,6 +144,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 4. Crear la cita
+    const cancellationCode = await generateUniqueCancellationCode(supabase)
     const { data: appointment, error: apptError } = await supabase
       .from('appointments')
       .insert({
@@ -133,6 +156,7 @@ export async function POST(request: NextRequest) {
         end_time,
         status: 'sync_pending',
         notes: notes ?? null,
+        cancellation_code: cancellationCode,
       })
       .select('*')
       .single()

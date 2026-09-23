@@ -22,6 +22,8 @@ CREATE TABLE IF NOT EXISTS barbershops (
   address TEXT,
   google_maps_url TEXT,
   notification_email VARCHAR(255),
+  announcement_text TEXT,
+  announcement_active BOOLEAN DEFAULT false,
   timezone VARCHAR(50) DEFAULT 'America/Bogota',
   primary_color VARCHAR(7) DEFAULT '#0E0E0E',
   accent_color VARCHAR(7) DEFAULT '#C9A84C',
@@ -102,6 +104,7 @@ CREATE TABLE IF NOT EXISTS appointments (
   status appointment_status DEFAULT 'confirmed',
   notes TEXT,
   google_calendar_event_id VARCHAR(255),
+  cancellation_code VARCHAR(4),
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   CONSTRAINT no_overlap EXCLUDE USING gist (
@@ -113,6 +116,7 @@ CREATE TABLE IF NOT EXISTS appointments (
 CREATE INDEX IF NOT EXISTS idx_appointments_barber_date ON appointments(barber_id, start_time);
 CREATE INDEX IF NOT EXISTS idx_appointments_barbershop_date ON appointments(barbershop_id, start_time);
 CREATE INDEX IF NOT EXISTS idx_appointments_status ON appointments(status);
+CREATE INDEX IF NOT EXISTS idx_appointments_cancellation_code ON appointments(cancellation_code);
 
 -- ============================================================
 -- TABLA: barber_working_hours
