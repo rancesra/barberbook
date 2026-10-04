@@ -1,5 +1,6 @@
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { uploadBarberPhoto } from '@/lib/barber-photo'
 
 export async function POST(req: Request) {
   try {
@@ -19,18 +20,9 @@ export async function POST(req: Request) {
     // 2. Subir foto a Supabase Storage si viene
     let photo_url: string | null = null
     if (photoBase64) {
-      const base64Data = photoBase64.replace(/^data:image\/webp;base64,/, '')
-      const buffer = Buffer.from(base64Data, 'base64')
-      const fileName = `${Date.now()}-${name.toLowerCase().replace(/\s+/g, '-')}.webp`
-
-      const { error: uploadError } = await supabase.storage
-        .from('barbers')
-        .upload(fileName, buffer, { contentType: 'image/webp', upsert: true })
-
-      if (!uploadError) {
-        const { data: urlData } = supabase.storage.from('barbers').getPublicUrl(fileName)
-        photo_url = urlData.publicUrl
-      }
+      const upload = await uploadBarberPhoto(supabase, photoBase64, name)
+      if ('error' in upload) return NextResponse.json({ error: upload.error }, { status: 400 })
+      photo_url = upload.url
     }
 
     // 3. Crear cuenta Auth del barbero

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/Button'
+import { PhotoPicker } from '@/components/admin/PhotoPicker'
 import Link from 'next/link'
 import { Trash2 } from 'lucide-react'
 
@@ -12,39 +13,49 @@ export default function EditarBarberoPage() {
   const id = params.id as string
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null)
+  const [photoBase64, setPhotoBase64] = useState<string | null>(null)
   const [form, setForm] = useState({
-    name: '', specialty: '', description: '', phone: '', photo_url: '', sort_order: 0, is_active: true,
+    name: '', specialty: '', description: '', phone: '', sort_order: 0, is_active: true,
   })
 
   useEffect(() => {
     const supabase = createClient()
     supabase.from('barbers').select('*').eq('id', id).single().then(({ data }) => {
-      if (data) setForm({
-        name: data.name ?? '',
-        specialty: data.specialty ?? '',
-        description: data.description ?? '',
-        phone: data.phone ?? '',
-        photo_url: data.photo_url ?? '',
-        sort_order: data.sort_order ?? 0,
-        is_active: data.is_active ?? true,
-      })
+      if (data) {
+        setForm({
+          name: data.name ?? '',
+          specialty: data.specialty ?? '',
+          description: data.description ?? '',
+          phone: data.phone ?? '',
+          sort_order: data.sort_order ?? 0,
+          is_active: data.is_active ?? true,
+        })
+        setPhotoUrl(data.photo_url)
+      }
       setLoading(false)
     })
   }, [id])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError(null)
     setSaving(true)
-    const supabase = createClient()
-    await supabase.from('barbers').update({
-      name: form.name,
-      specialty: form.specialty || null,
-      description: form.description || null,
-      phone: form.phone || null,
-      photo_url: form.photo_url || null,
-      sort_order: form.sort_order,
-      is_active: form.is_active,
-    }).eq('id', id)
+
+    const res = await fetch(`/api/admin/barbers/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...form, photoBase64 }),
+    })
+
+    if (!res.ok) {
+      const result = await res.json().catch(() => ({}))
+      setError(result.error ?? 'No se pudo guardar. Intenta de nuevo.')
+      setSaving(false)
+      return
+    }
+
     router.push('/admin/barberos')
   }
 
@@ -58,7 +69,7 @@ export default function EditarBarberoPage() {
   if (loading) return <div className="p-6 text-text-muted text-sm">Cargando...</div>
 
   return (
-    <div className="p-6 max-w-2xl">
+    <div className="p-6 max-w-2xl ios-push">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <Link href="/admin/barberos" className="text-text-muted hover:text-text-secondary text-sm">← Volver</Link>
@@ -70,6 +81,16 @@ export default function EditarBarberoPage() {
       </div>
 
       <form onSubmit={handleSubmit} className="card p-6 space-y-4">
+        {error && (
+          <div className="bg-red-900/30 border border-red-800 rounded-2xl p-3" role="alert">
+            <p className="text-red-400 text-sm">{error}</p>
+          </div>
+        )}
+
+        <div>
+          <label className="label">Foto</label>
+          <PhotoPicker currentUrl={photoUrl} onChange={setPhotoBase64} onError={setError} />
+        </div>
         <div>
           <label className="label">Nombre *</label>
           <input className="input-field" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required />
@@ -87,12 +108,8 @@ export default function EditarBarberoPage() {
           <input className="input-field" placeholder="+57 300 000 0000" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
         </div>
         <div>
-          <label className="label">URL de foto</label>
-          <input className="input-field" placeholder="/barbers/nombre.webp" value={form.photo_url} onChange={e => setForm(f => ({ ...f, photo_url: e.target.value }))} />
-        </div>
-        <div>
           <label className="label">Orden</label>
-          <input type="number" className="input-field" value={form.sort_order} onChange={e => setForm(f => ({ ...f, sort_order: parseInt(e.target.value) }))} />
+          <input type="number" className="input-field" value={form.sort_order} onChange={e => setForm(f => ({ ...f, sort_order: parseInt(e.target.value) || 0 }))} />
         </div>
         <div className="flex items-center gap-3">
           <input type="checkbox" id="is_active" checked={form.is_active} onChange={e => setForm(f => ({ ...f, is_active: e.target.checked }))} className="w-4 h-4 accent-gold" />

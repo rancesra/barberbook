@@ -6,6 +6,9 @@ import { es } from 'date-fns/locale'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/Button'
 import { buildWhatsAppLink } from '@/lib/utils'
+import { SegmentedControl } from '@/components/ui/SegmentedControl'
+import { PlansManager } from '@/components/admin/PlansManager'
+import Link from 'next/link'
 
 interface Subscription {
   id: string
@@ -35,10 +38,28 @@ const STATUS_COLORS: Record<string, string> = {
   cancelled: 'text-text-muted bg-bg-tertiary',
 }
 
+const TABS = [
+  { value: 'clientes', label: 'Clientes' },
+  { value: 'planes', label: 'Planes' },
+] as const
+
+type Tab = (typeof TABS)[number]['value']
+
 export default function SuscripcionesPage() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [tab, setTab] = useState<Tab>('clientes')
+
+  // ?tab=planes: al volver de editar un plan se queda en la pestaña de planes
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('tab') === 'planes') setTab('planes')
+  }, [])
+
+  const changeTab = (next: Tab) => {
+    setTab(next)
+    window.history.replaceState(null, '', next === 'planes' ? '?tab=planes' : window.location.pathname)
+  }
 
   const load = async () => {
     const supabase = createClient()
@@ -68,36 +89,45 @@ export default function SuscripcionesPage() {
     load()
   }
 
-  const selected = subscriptions.find(s => s.id === selectedId)
-
-  if (loading) {
-    return (
-      <div className="p-6">
-        <div className="animate-pulse space-y-3">
-          {[1,2,3].map(i => <div key={i} className="h-16 bg-bg-secondary rounded-xl" />)}
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="p-6 max-w-6xl ios-push">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
         <div>
           <h1 className="text-2xl font-bold text-text-primary">Suscripciones</h1>
           <p className="text-text-secondary text-sm mt-1">
-            {subscriptions.filter(s => s.status === 'active').length} activas · {subscriptions.length} total
+            {tab === 'planes'
+              ? 'Los planes que ofreces en la página'
+              : `${subscriptions.filter(s => s.status === 'active').length} activas · ${subscriptions.length} total`}
           </p>
         </div>
-        <a
-          href="/admin/suscripciones/nueva"
+        <Link
+          href={tab === 'planes' ? '/admin/suscripciones/planes/nuevo' : '/admin/suscripciones/nueva'}
           className="glass-gold flex items-center justify-center gap-2 text-bg-primary text-sm font-semibold py-2.5 px-5 rounded-full hover:brightness-110 transition-all ios-press self-start"
         >
           <Plus size={16} />
-          Nueva suscripción
-        </a>
+          {tab === 'planes' ? 'Nuevo plan' : 'Nueva suscripción'}
+        </Link>
       </div>
 
+      <div className="mb-6">
+        <SegmentedControl
+          options={TABS}
+          value={tab}
+          onChange={changeTab}
+          ariaLabel="Ver clientes o planes"
+        />
+      </div>
+
+      {tab === 'planes' ? (
+        <div className="max-w-2xl">
+          <PlansManager />
+        </div>
+      ) : loading ? (
+        <div className="animate-pulse space-y-3">
+          {[1,2,3].map(i => <div key={i} className="h-16 bg-white/5 rounded-3xl" />)}
+        </div>
+      ) : (
+      <>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {subscriptions.map((sub) => {
           const daysLeft = differenceInDays(parseISO(sub.expires_at), new Date())
@@ -243,6 +273,8 @@ export default function SuscripcionesPage() {
           <p className="text-text-secondary">No hay suscripciones aún</p>
           <p className="text-text-muted text-sm mt-1">Cuando un cliente adquiera un plan, aparecerá aquí</p>
         </div>
+      )}
+      </>
       )}
     </div>
   )

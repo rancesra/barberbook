@@ -3,7 +3,7 @@ import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { CheckCircle, MapPin, MessageCircle, RefreshCw, LayoutDashboard, Home, KeyRound } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
-import { buildWhatsAppLink, buildBookingWhatsAppMessage } from '@/lib/utils'
+import { buildWhatsAppLink, buildBookingWhatsAppMessage, buildClientConfirmationMessage } from '@/lib/utils'
 import Link from 'next/link'
 import type { Barber, Service, TimeSlot, Barbershop } from '@/types'
 
@@ -56,13 +56,18 @@ export function BookingSuccess({
     : null
 
   // Mensaje de notificación al cliente (para cuando Andrés agenda desde el panel)
-  const codeLine = cancellationCode
-    ? `\n\nSu codigo de cancelacion es *${cancellationCode}*. Uselo en la pagina principal si necesita cancelar.`
-    : ''
   const clientNotifMessage = customerPhone
     ? buildWhatsAppLink(
         customerPhone,
-        `Hola, *${customerName}*.\n\nSu cita en *${barbershop.name}* ha sido confirmada:\n\nFecha: *${dateFormatted}*\nHora: *${selectedSlot.label}*\nServicio: ${service.name}\nBarbero: Andres${codeLine}\n\nLe esperamos.`
+        buildClientConfirmationMessage({
+          customerName,
+          barberName: barber.name,
+          serviceName: service.name,
+          date: dateFormatted,
+          time: selectedSlot.label,
+          barbershopName: barbershop.name,
+          cancellationCode,
+        })
       )
     : null
 

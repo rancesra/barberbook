@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS plans (
   cuts_per_month INTEGER NOT NULL DEFAULT 2,
   benefits TEXT[] NOT NULL DEFAULT '{}',
   is_popular BOOLEAN DEFAULT false,
+  badge_text VARCHAR(30),
   is_active BOOLEAN DEFAULT true,
   color VARCHAR(7) DEFAULT '#C9A84C',
   sort_order INTEGER DEFAULT 0,

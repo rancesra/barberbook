@@ -60,6 +60,22 @@ export interface Service {
   updated_at: string
 }
 
+export interface Plan {
+  id: string
+  barbershop_id: string
+  name: string
+  subtitle: string | null
+  price: number
+  cuts_per_month: number // 99 = ilimitados
+  benefits: string[]
+  is_popular: boolean // destacado en la página
+  badge_text?: string | null // etiqueta del destacado; null = "Más popular"
+  is_active: boolean // visible en la página
+  color: string
+  sort_order: number
+  created_at: string
+}
+
 export interface Customer {
   id: string
   name: string

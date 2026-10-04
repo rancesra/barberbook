@@ -1,23 +1,21 @@
 'use client'
-import { Check, Crown, MessageCircle } from 'lucide-react'
+import { Crown } from 'lucide-react'
 import { buildWhatsAppLink } from '@/lib/utils'
 import { useUser } from '@/hooks/useUser'
-import type { Barbershop } from '@/types'
-
-interface Plan {
-  id: string
-  name: string
-  subtitle: string | null
-  price: number
-  cuts_per_month: number
-  benefits: string[]
-  is_popular: boolean
-  color: string
-}
+import { PlanCard } from '@/components/public/PlanCard'
+import type { Barbershop, Plan } from '@/types'
 
 interface PlansSectionProps {
   plans: Plan[]
   barbershop: Barbershop
+}
+
+/** Columnas según cuántos planes haya, para que ninguno quede huérfano. */
+function gridFor(count: number): string {
+  if (count === 1) return 'max-w-sm'
+  if (count === 2) return 'sm:grid-cols-2 max-w-3xl'
+  if (count === 4) return 'sm:grid-cols-2 lg:grid-cols-4'
+  return 'sm:grid-cols-3'
 }
 
 export function PlansSection({ plans, barbershop }: PlansSectionProps) {
@@ -51,78 +49,10 @@ export function PlansSection({ plans, barbershop }: PlansSectionProps) {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className={`grid grid-cols-1 gap-x-4 gap-y-6 mx-auto ${gridFor(plans.length)}`}>
         {plans.map((plan) => (
-          <div
-            key={plan.id}
-            className={`relative rounded-3xl flex flex-col transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-1 ios-step ${
-              plan.is_popular
-                ? 'glass-strong border-gold/45 ring-1 ring-gold/25 sm:scale-[1.03]'
-                : 'glass hover:bg-white/10'
-            }`}
-          >
-            {/* Badge más popular */}
-            {plan.is_popular && (
-              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                <span className="glass-gold text-bg-primary text-xs font-bold px-4 py-1.5 rounded-full whitespace-nowrap">
-                  Más popular
-                </span>
-              </div>
-            )}
-
-            {/* Header del plan */}
-            <div
-              className="p-5 rounded-t-2xl"
-              style={{ backgroundColor: `${plan.color}20`, borderBottom: `1px solid ${plan.color}30` }}
-            >
-              <p className="text-xs font-medium mb-1" style={{ color: plan.color }}>
-                {plan.subtitle}
-              </p>
-              <h3 className="text-xl font-bold text-text-primary">{plan.name}</h3>
-              <div className="mt-3 flex items-end gap-1">
-                <span className="text-3xl font-bold text-text-primary">
-                  ${plan.price.toLocaleString('es-CO')}
-                </span>
-                <span className="text-text-muted text-sm mb-1">/mes</span>
-              </div>
-              <p className="text-xs mt-1" style={{ color: plan.color }}>
-                {plan.cuts_per_month >= 99 ? 'Cortes ilimitados' : `${plan.cuts_per_month} cortes al mes`}
-              </p>
-            </div>
-
-            {/* Beneficios */}
-            <div className="p-5 flex-1">
-              <ul className="space-y-2.5">
-                {plan.benefits.map((benefit, i) => (
-                  <li key={i} className="flex items-start gap-2.5">
-                    <div
-                      className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
-                      style={{ backgroundColor: `${plan.color}25` }}
-                    >
-                      <Check size={10} style={{ color: plan.color }} />
-                    </div>
-                    <span className="text-text-secondary text-sm">{benefit}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* CTA */}
-            <div className="p-5 pt-0">
-              <a
-                href={buildPlanWhatsApp(plan)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-full font-semibold text-sm transition-all duration-200 ios-press ${
-                  plan.is_popular
-                    ? 'glass-gold text-bg-primary hover:brightness-110'
-                    : 'glass text-text-primary hover:bg-white/10'
-                }`}
-              >
-                <MessageCircle size={15} />
-                Adquirir por WhatsApp
-              </a>
-            </div>
+          <div key={plan.id} className={`ios-step ${plan.is_popular ? 'sm:scale-[1.03]' : ''}`}>
+            <PlanCard plan={plan} href={buildPlanWhatsApp(plan)} />
           </div>
         ))}
       </div>

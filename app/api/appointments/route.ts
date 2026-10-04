@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { addMinutes, parseISO, format } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { toZonedTime } from 'date-fns-tz'
 import { createAdminClient } from '@/lib/supabase/server'
 import { calculateAvailability } from '@/lib/availability'
 import { sendWhatsAppReminder } from '@/lib/sent'
@@ -162,7 +163,8 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (apptError || !appointment) {
-      if (apptError?.code === 'P0001' || apptError?.message?.includes('overlap')) {
+      // 23P01: la regla no_overlap de la base de datos (dos citas a la vez)
+      if (apptError?.code === '23P01' || apptError?.code === 'P0001' || apptError?.message?.includes('overlap')) {
         return NextResponse.json(
           { success: false, error: 'Ese horario fue tomado en este momento. Por favor elige otro.' },
           { status: 409 }
@@ -175,19 +177,22 @@ export async function POST(request: NextRequest) {
     }
 
     // 5. Enviar confirmación por WhatsApp vía Sent
-    const appointmentDate = parseISO(start_time)
+    // En hora de la barbería: el servidor de Vercel corre en UTC y sin esto
+    // los mensajes salían 5 horas corridos (2:30 pm → 7:30 PM).
+    const appointmentDate = toZonedTime(parseISO(start_time), barbershop.timezone)
+    const timeLabel = format(appointmentDate, 'h:mm a').replace('AM', 'am').replace('PM', 'pm')
     sendWhatsAppReminder({
       phone: customer.phone,
       customerName: customer.name,
       date: format(appointmentDate, "EEEE d 'de' MMMM", { locale: es }),
-      time: format(appointmentDate, 'h:mm a'),
+      time: timeLabel,
       barberName: barber.name,
     }).catch((err) => console.error('[Sent] Error en background:', err))
 
     // 6. Notificar al admin/barbero (push)
     await sendPushToAdmin({
       title: 'Nueva cita reservada',
-      body: `${customer.name} — ${service.name}, ${format(appointmentDate, 'd MMM', { locale: es })} ${format(appointmentDate, 'h:mm a')}`,
+      body: `${customer.name} — ${service.name}, ${format(appointmentDate, 'd MMM', { locale: es })} ${timeLabel}`,
       url: '/admin/reservas',
     })
 

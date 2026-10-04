@@ -1,51 +1,20 @@
 'use client'
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/Button'
 import Link from 'next/link'
-import { Camera, Eye, EyeOff } from 'lucide-react'
-import Image from 'next/image'
-
-function convertToWebP(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      const img = document.createElement('img')
-      img.onload = () => {
-        const canvas = document.createElement('canvas')
-        canvas.width = img.width
-        canvas.height = img.height
-        const ctx = canvas.getContext('2d')!
-        ctx.drawImage(img, 0, 0)
-        resolve(canvas.toDataURL('image/webp', 0.85))
-      }
-      img.onerror = reject
-      img.src = e.target?.result as string
-    }
-    reader.onerror = reject
-    reader.readAsDataURL(file)
-  })
-}
+import { Eye, EyeOff } from 'lucide-react'
+import { PhotoPicker } from '@/components/admin/PhotoPicker'
 
 export default function NuevoBarberoPage() {
   const router = useRouter()
-  const fileRef = useRef<HTMLInputElement>(null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showPassword, setShowPassword] = useState(false)
-  const [photoPreview, setPhotoPreview] = useState<string | null>(null)
   const [photoBase64, setPhotoBase64] = useState<string | null>(null)
   const [form, setForm] = useState({
     name: '', specialty: '', description: '', phone: '', password: '', sort_order: 0,
   })
-
-  const handlePhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    const webp = await convertToWebP(file)
-    setPhotoPreview(webp)
-    setPhotoBase64(webp)
-  }
 
   const handlePhone = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value.replace(/\D/g, '').slice(0, 10)
@@ -99,25 +68,7 @@ export default function NuevoBarberoPage() {
         {/* Foto */}
         <div>
           <label className="label">Foto del barbero</label>
-          <div className="flex items-center gap-4">
-            <div
-              onClick={() => fileRef.current?.click()}
-              className="w-24 h-24 rounded-2xl border-2 border-dashed border-border hover:border-gold/50 transition-colors cursor-pointer flex items-center justify-center overflow-hidden bg-bg-secondary flex-shrink-0"
-            >
-              {photoPreview ? (
-                <Image src={photoPreview} alt="preview" width={96} height={96} className="w-full h-full object-cover" />
-              ) : (
-                <Camera size={28} className="text-text-muted" />
-              )}
-            </div>
-            <div>
-              <button type="button" onClick={() => fileRef.current?.click()} className="text-gold text-sm font-medium hover:text-gold-light transition-colors">
-                {photoPreview ? 'Cambiar foto' : 'Subir foto'}
-              </button>
-              <p className="text-text-muted text-xs mt-1">JPG, PNG, HEIC — se convierte a WebP automáticamente</p>
-            </div>
-            <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handlePhoto} />
-          </div>
+          <PhotoPicker onChange={setPhotoBase64} onError={setError} />
         </div>
 
         {/* Nombre */}

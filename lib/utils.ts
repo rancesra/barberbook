@@ -36,6 +36,22 @@ export function buildBookingWhatsAppMessage(params: {
   return `${base}\n\nMi codigo de cancelacion es *${params.cancellationCode}*.`
 }
 
+/** Mensaje que el barbero le manda al cliente cuando agenda por él desde el panel. */
+export function buildClientConfirmationMessage(params: {
+  customerName: string
+  barberName: string
+  serviceName: string
+  date: string
+  time: string
+  barbershopName: string
+  cancellationCode?: string | null
+}): string {
+  const codeLine = params.cancellationCode
+    ? `\n\nSu codigo de cancelacion es *${params.cancellationCode}*. Uselo en la pagina principal si necesita cancelar.`
+    : ''
+  return `Hola, *${params.customerName}*.\n\nSu cita en *${params.barbershopName}* ha sido confirmada:\n\nFecha: *${params.date}*\nHora: *${params.time}*\nServicio: ${params.serviceName}\nBarbero: ${params.barberName}${codeLine}\n\nLe esperamos.`
+}
+
 /** Código de 4 dígitos (1000–9999) que el cliente usa para cancelar su cita. */
 export function generateCancellationCode(): string {
   return String(Math.floor(1000 + Math.random() * 9000))
