@@ -1,0 +1,32 @@
+#!/bin/sh
+# Antes de cada `git push`: revisa que el código compile y que pasen las
+# pruebas. Si algo falla, el push se cancela y nada llega a Vercel.
+#
+# Se activa una vez por computador con:
+#   git config core.hooksPath .githooks
+# Para saltarlo en una emergencia:
+#   git push --no-verify
+
+# Programas como VS Code o GitHub Desktop no siempre tienen Node en el PATH
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+
+if ! command -v npm >/dev/null 2>&1; then
+  echo "✗ No se encontró npm, así que no se pudieron correr las pruebas. No se subió nada."
+  exit 1
+fi
+
+echo "→ Revisando que el código compile..."
+if ! npx --no-install tsc --noEmit; then
+  echo ""
+  echo "✗ El código no compila: no se subió nada. Arréglalo y vuelve a intentar."
+  exit 1
+fi
+
+echo "→ Corriendo las pruebas..."
+if ! npm test --silent; then
+  echo ""
+  echo "✗ Hay pruebas en rojo: no se subió nada. Arréglalas y vuelve a intentar."
+  exit 1
+fi
+
+echo "✓ Todo bien. Subiendo..."
