@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { format, parseISO, isPast, isSameDay, addDays } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { Phone, MessageCircle, Trash2, Plus, KeyRound, Check } from 'lucide-react'
@@ -10,6 +10,7 @@ import { LargeTitle } from '@/components/ui/LargeTitle'
 import { toZonedTime } from 'date-fns-tz'
 import { createClient } from '@/lib/supabase/client'
 import { buildWhatsAppLink } from '@/lib/utils'
+import { fetchAppointmentsPage, type ReservasTab } from '@/lib/appointments-page'
 import Link from 'next/link'
 
 const TZ = 'America/Bogota'
@@ -40,61 +41,112 @@ const STATUS_COLORS: Record<string, string> = {
   sync_pending: 'text-red-400 bg-red-900/20',
 }
 
+function subtitleFor(tab: ReservasTab, total: number): string {
+  const n = total === 1 ? 'reserva' : 'reservas'
+  if (tab === 'upcoming') return `${total} ${n} ${total === 1 ? 'próxima' : 'próximas'}`
+  if (tab === 'past') return `${total} ${n} ${total === 1 ? 'pasada' : 'pasadas'}`
+  return `${total} ${n} en total`
+}
+
 export default function ReservasPage() {
   const [barberId, setBarberId] = useState<string | null>(null)
   const [appointments, setAppointments] = useState<Appointment[]>([])
+  const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
-  const [tab, setTab] = useState<'upcoming' | 'past' | 'all'>('upcoming')
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [tab, setTab] = useState<ReservasTab>('upcoming')
   const [statusFilter, setStatusFilter] = useState('all')
   const [mapsUrl, setMapsUrl] = useState<string | null>(null)
   const { confirm: confirmAction, sheet: confirmSheet } = useConfirm()
+  // Si se cambia de pestaña mientras carga, la respuesta vieja se ignora
+  const requestId = useRef(0)
 
-  const load = async () => {
+  // Barbero y link de Maps: una sola vez
+  useEffect(() => {
     const supabase = createClient()
-    let bid = barberId
-    if (!bid) {
-      const { data: barber } = await supabase
-        .from('barbers').select('id').eq('is_active', true).order('sort_order').limit(1).single()
-      if (!barber) { setLoading(false); return }
-      bid = barber.id
-      setBarberId(bid)
-      // Cargar maps url de la barbería
-      const { data: shop } = await supabase.from('barbershops').select('google_maps_url').limit(1).single()
-      if (shop?.google_maps_url) setMapsUrl(shop.google_maps_url)
+    supabase
+      .from('barbers').select('id').eq('is_active', true).order('sort_order').limit(1).single()
+      .then(({ data }) => {
+        if (data) setBarberId(data.id)
+        else setLoading(false)
+      })
+    supabase.from('barbershops').select('google_maps_url').limit(1).single()
+      .then(({ data }) => { if (data?.google_maps_url) setMapsUrl(data.google_maps_url) })
+  }, [])
+
+  const fetchPage = (offset: number) =>
+    fetchAppointmentsPage<Appointment>(createClient(), {
+      barberId: barberId!,
+      tab,
+      status: statusFilter,
+      offset,
+      now: new Date(),
+    })
+
+  // Primera página cada vez que cambia la pestaña o el filtro
+  useEffect(() => {
+    if (!barberId) return
+    const id = ++requestId.current
+    setLoading(true)
+    fetchPage(0).then((page) => {
+      if (id !== requestId.current) return
+      setAppointments(page.items)
+      setTotal(page.total)
+      setError(page.error)
+      setLoading(false)
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [barberId, tab, statusFilter])
+
+  const loadMore = async () => {
+    const id = requestId.current
+    setLoadingMore(true)
+    const page = await fetchPage(appointments.length)
+    setLoadingMore(false)
+    if (id !== requestId.current) return
+    if (page.error) {
+      setError(page.error)
+      return
     }
-    const { data } = await supabase
-      .from('appointments')
-      .select('id, start_time, status, notes, cancellation_code, service:services(name, duration_minutes), customer:customers(name, phone)')
-      .eq('barber_id', bid)
-      .order('start_time', { ascending: false })
-      .limit(500)
-    setAppointments((data as unknown as Appointment[]) ?? [])
-    setLoading(false)
+    // Sin repetidas: si entró una cita nueva, la lista se corre una posición
+    setAppointments((prev) => [...prev, ...page.items.filter((a) => !prev.some((p) => p.id === a.id))])
+    setTotal(page.total)
   }
 
-  useEffect(() => { load() }, [])
+  const removeFromList = (id: string) => {
+    setAppointments((prev) => prev.filter((a) => a.id !== id))
+    setTotal((t) => Math.max(0, t - 1))
+  }
 
   const updateStatus = async (id: string, status: string) => {
-    const supabase = createClient()
-    await supabase.from('appointments').update({ status }).eq('id', id)
-    await load()
+    const { error } = await createClient().from('appointments').update({ status }).eq('id', id)
+    if (error) {
+      setError('No se pudo cambiar el estado de la reserva. Intenta de nuevo.')
+      return
+    }
+    // Con un filtro de estado puesto, la cita ya no pertenece a esta lista
+    if (statusFilter !== 'all' && status !== statusFilter) removeFromList(id)
+    else setAppointments((prev) => prev.map((a) => (a.id === id ? { ...a, status } : a)))
   }
 
   const deleteAppointment = (id: string) => {
     confirmAction(
       { title: '¿Eliminar esta reserva?', message: 'Esta acción no se puede deshacer.', confirmLabel: 'Eliminar', destructive: true },
       async () => {
-        const supabase = createClient()
-        await supabase.from('appointments').delete().eq('id', id)
-        await load()
+        const { error } = await createClient().from('appointments').delete().eq('id', id)
+        if (error) {
+          setError('No se pudo eliminar la reserva. Intenta de nuevo.')
+          return
+        }
+        removeFromList(id)
       }
     )
   }
 
-  let filtered = appointments
-  if (tab === 'upcoming') filtered = appointments.filter(a => !isPast(parseISO(a.start_time)))
-  if (tab === 'past')     filtered = appointments.filter(a => isPast(parseISO(a.start_time)))
-  if (statusFilter !== 'all') filtered = filtered.filter(a => a.status === statusFilter)
+  // La pestaña y el filtro ya vienen resueltos desde la base de datos
+  const filtered = appointments
+  const remaining = total - appointments.length
 
   const todayTz = toZonedTime(new Date(), TZ)
   const grouped = (() => {
@@ -112,20 +164,12 @@ export default function ReservasPage() {
     return groups
   })()
 
-  if (loading) return (
-    <div className="p-6">
-      <div className="animate-pulse space-y-3">
-        {[1,2,3,4].map(i => <div key={i} className="h-16 bg-bg-secondary rounded-xl" />)}
-      </div>
-    </div>
-  )
-
   return (
     <div className="p-6 max-w-4xl ios-push">
       <div className="mb-6">
         <LargeTitle
           title="Mis reservas"
-          subtitle={`${appointments.length} reservas en total`}
+          subtitle={loading ? 'Cargando…' : subtitleFor(tab, total)}
           action={
             <Link
               href="/agendar?from=admin"
@@ -162,6 +206,18 @@ export default function ReservasPage() {
         ))}
       </div>
 
+      {error && (
+        <div className="mb-4 p-3 bg-red-900/30 border border-red-800 rounded-2xl flex items-start justify-between gap-3" role="alert">
+          <p className="text-red-400 text-sm">{error}</p>
+          <button onClick={() => setError(null)} className="text-xs text-red-400/70 underline flex-shrink-0">Cerrar</button>
+        </div>
+      )}
+
+      {loading ? (
+        <div className="animate-pulse space-y-3">
+          {[1, 2, 3, 4].map(i => <div key={i} className="h-20 bg-white/5 rounded-3xl" />)}
+        </div>
+      ) : (
       <div className="space-y-3">
         {grouped.map(({ label, items }) => (
           <div key={label}>
@@ -244,12 +300,28 @@ export default function ReservasPage() {
         })}
           </div>
         ))}
-        {filtered.length === 0 && (
+        {filtered.length === 0 && !error && (
           <div className="card p-12 text-center">
             <p className="text-text-secondary">No hay reservas aquí</p>
           </div>
         )}
+
+        {remaining > 0 && (
+          <div className="pt-2 pb-4 text-center">
+            <button
+              onClick={loadMore}
+              disabled={loadingMore}
+              className="glass w-full py-3.5 rounded-full text-sm font-semibold text-text-primary hover:bg-white/10 transition-colors ios-press disabled:opacity-60"
+            >
+              {loadingMore ? 'Cargando…' : `Cargar más (${remaining} más)`}
+            </button>
+            <p className="text-text-muted text-xs mt-2">
+              Mostrando {appointments.length} de {total}
+            </p>
+          </div>
+        )}
       </div>
+      )}
 
       {confirmSheet}
     </div>

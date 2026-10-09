@@ -9,6 +9,9 @@ export interface Op {
   values?: Record<string, unknown>
   filters: Record<string, unknown>
   head?: boolean
+  count?: string
+  order?: { column: string; ascending: boolean }
+  range?: [number, number]
 }
 
 export interface Result {
@@ -33,8 +36,9 @@ export function fakeSupabase(handler: (op: Op) => Result | undefined) {
     from(table: string) {
       const op: Op = { table, action: 'select', filters: {} }
       const builder = {
-        select(_columns?: string, options?: { head?: boolean }) {
+        select(_columns?: string, options?: { head?: boolean; count?: string }) {
           if (options?.head) op.head = true
+          if (options?.count) op.count = options.count
           return builder
         },
         insert(values: Record<string, unknown>) {
@@ -63,7 +67,18 @@ export function fakeSupabase(handler: (op: Op) => Result | undefined) {
           op.filters[`${column} >=`] = value
           return builder
         },
-        order: () => builder,
+        lt(column: string, value: unknown) {
+          op.filters[`${column} <`] = value
+          return builder
+        },
+        order(column: string, options?: { ascending?: boolean }) {
+          op.order = { column, ascending: options?.ascending ?? true }
+          return builder
+        },
+        range(from: number, to: number) {
+          op.range = [from, to]
+          return builder
+        },
         limit: () => builder,
         single: () => builder,
         maybeSingle: () => builder,
