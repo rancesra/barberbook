@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 
 interface ConfirmOptions {
   title: string
@@ -37,7 +38,10 @@ export function ConfirmSheet({
 
   if (!open) return null
 
-  return (
+  // Directo en <body>: si quedara dentro de un contenedor animado, "fixed" se
+  // mide contra ese contenedor y en una lista larga los botones quedan al
+  // fondo, fuera de la pantalla. Así se perdió el "Eliminar" de Reservas.
+  return createPortal(
     <div className="fixed inset-0 z-[60] flex items-end justify-center" role="dialog" aria-modal="true">
       <button
         aria-label="Cancelar"
@@ -70,7 +74,8 @@ export function ConfirmSheet({
           Cancelar
         </button>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
 
