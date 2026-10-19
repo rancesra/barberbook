@@ -63,6 +63,23 @@ export const planOrderSchema = z.object({
   order: z.array(z.string().uuid()).min(1),
 })
 
+export const serviceSchema = z.object({
+  name: z.string().trim().min(1, 'El servicio necesita un nombre').max(100, 'El nombre: máximo 100 caracteres'),
+  description: optionalText(500, 'La descripción'),
+  duration_minutes: z.coerce
+    .number({ invalid_type_error: 'La duración debe ser un número' })
+    .int('La duración va en minutos enteros')
+    .min(5, 'Mínimo 5 minutos')
+    .max(480, 'Máximo 8 horas'),
+  price: z.coerce
+    .number({ invalid_type_error: 'El precio debe ser un número' })
+    .int('El precio va sin decimales')
+    .min(0, 'El precio no puede ser negativo')
+    .max(100_000_000, 'El precio es demasiado alto'),
+  sort_order: z.coerce.number({ invalid_type_error: 'El orden debe ser un número' }).int().min(0).max(999),
+  is_active: z.boolean(),
+})
+
 export const barberUpdateSchema = z.object({
   name: z.string().trim().min(1, 'El barbero necesita un nombre').max(255),
   specialty: optionalText(255, 'La especialidad'),

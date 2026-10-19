@@ -75,6 +75,14 @@ export async function POST(request: NextRequest) {
     const service = serviceRes.data
     const barber = barberRes.data
 
+    // Un servicio oculto no se puede agendar (su historial sí se conserva)
+    if (service.is_active === false) {
+      return NextResponse.json(
+        { success: false, error: 'Ese servicio ya no está disponible. Por favor elige otro.' },
+        { status: 409 }
+      )
+    }
+
     const end_time = addMinutes(parseISO(start_time), service.duration_minutes).toISOString()
 
     // 2. Verificar disponibilidad (doble check)
