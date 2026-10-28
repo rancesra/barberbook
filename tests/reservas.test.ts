@@ -27,7 +27,7 @@ function database({ appointments = [], takenCodes = [], insertError }: Scenario 
       case 'barbershops':
         return { data: { id: SHOP_ID, name: 'Barbería Artist Studio', timezone: TIMEZONE } }
       case 'services':
-        return { data: { id: SERVICE_ID, name: 'Corte', duration_minutes: 60 } }
+        return { data: { id: SERVICE_ID, name: 'Corte', duration_minutes: 60, price: 33000 } }
       case 'barbers':
         return { data: { id: BARBER_ID, name: 'Andrés' } }
       case 'barber_working_hours':
@@ -98,6 +98,7 @@ describe('Agendar: lo que sí se puede', () => {
       start_time: bogota('2026-10-05', '14:30'),
       end_time: bogota('2026-10-05', '15:30'),
       status: 'sync_pending',
+      price: 33000,
     })
     expect(inserted(db)?.values?.cancellation_code).toMatch(/^\d{4}$/)
   })

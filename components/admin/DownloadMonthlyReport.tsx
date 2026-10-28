@@ -4,6 +4,7 @@ import { FileDown, Loader2 } from 'lucide-react'
 import { format, parseISO, subMonths } from 'date-fns'
 import { toZonedTime } from 'date-fns-tz'
 import { es } from 'date-fns/locale'
+import { appointmentPrice } from '@/lib/utils'
 
 const TZ = 'America/Bogota'
 
@@ -51,11 +52,12 @@ export function DownloadMonthlyReport() {
       const appts = data.appointments as {
         start_time: string
         status: string
+        price: number | null
         service: { name: string; price: number } | null
         customer: { name: string; phone: string } | null
       }[]
 
-      const total = appts.reduce((sum, a) => sum + (a.service?.price ?? 0), 0)
+      const total = appts.reduce((sum, a) => sum + appointmentPrice(a), 0)
       const promedio = appts.length > 0 ? Math.round(total / appts.length) : 0
 
       // Contar servicios
@@ -107,7 +109,7 @@ export function DownloadMonthlyReport() {
           a.customer?.name ?? '—',
           a.customer?.phone ?? '—',
           a.service?.name ?? '—',
-          a.service?.price ? formatPrice(a.service.price) : '—',
+          appointmentPrice(a) ? formatPrice(appointmentPrice(a)) : '—',
         ]
       })
 

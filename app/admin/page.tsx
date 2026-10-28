@@ -5,7 +5,7 @@ import { toZonedTime, fromZonedTime } from 'date-fns-tz'
 import { es } from 'date-fns/locale'
 import { Calendar, TrendingUp, DollarSign, Plus } from 'lucide-react'
 import Link from 'next/link'
-import { formatPrice } from '@/lib/utils'
+import { appointmentPrice, formatPrice } from '@/lib/utils'
 import { UpcomingAppointments } from '@/components/admin/UpcomingAppointments'
 
 const TZ = 'America/Bogota'
@@ -68,21 +68,21 @@ async function getDashboardData() {
       .limit(30),
     supabase
       .from('appointments')
-      .select('service:services(price)')
+      .select('price, service:services(price)')
       .eq('barber_id', bid)
       .gte('start_time', todayStart)
       .lte('start_time', now.toISOString())
       .neq('status', 'cancelled'),
     supabase
       .from('appointments')
-      .select('service:services(price)')
+      .select('price, service:services(price)')
       .eq('barber_id', bid)
       .gte('start_time', monthStart)
       .lte('start_time', now.toISOString())
       .neq('status', 'cancelled'),
     supabase
       .from('appointments')
-      .select('service:services(price)')
+      .select('price, service:services(price)')
       .eq('barber_id', bid)
       .gte('start_time', lastMonthStart)
       .lte('start_time', lastMonthEnd)
@@ -91,10 +91,7 @@ async function getDashboardData() {
 
   const sumPrices = (data: unknown[] | null): number => {
     if (!data) return 0
-    return data.reduce((acc: number, row: unknown) => {
-      const r = row as { service?: { price?: number } | null }
-      return acc + (r.service?.price ?? 0)
-    }, 0)
+    return data.reduce((acc: number, row: unknown) => acc + appointmentPrice(row as Parameters<typeof appointmentPrice>[0]), 0)
   }
 
   return {

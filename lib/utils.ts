@@ -74,6 +74,17 @@ export function slugify(text: string): string {
     .replace(/(^-|-$)/g, '')
 }
 
+/**
+ * Lo que se cobró en una cita: el precio que quedó guardado al agendarla.
+ * Si una cita no lo tiene, se usa el precio actual del servicio.
+ */
+export function appointmentPrice(row: {
+  price?: number | string | null
+  service?: { price?: number | string | null } | null
+}): number {
+  return Number(row.price ?? row.service?.price ?? 0)
+}
+
 export function formatPrice(price: number | null): string {
   if (price === null) return ''
   return `$${price.toLocaleString('es-CO')}`

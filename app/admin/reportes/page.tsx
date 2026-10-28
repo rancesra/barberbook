@@ -5,7 +5,7 @@ import { toZonedTime, fromZonedTime } from 'date-fns-tz'
 import { es } from 'date-fns/locale'
 import { FileDown, Loader2, BarChart2, TrendingUp, DollarSign, Calendar } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { formatPrice } from '@/lib/utils'
+import { appointmentPrice, formatPrice } from '@/lib/utils'
 
 const TZ = 'America/Bogota'
 
@@ -50,13 +50,13 @@ export default function ReportesPage() {
 
       const { data } = await supabase
         .from('appointments')
-        .select('service:services(price)')
+        .select('price, service:services(price)')
         .eq('barber_id', barber.id)
         .gte('start_time', start)
         .lte('start_time', end)
         .neq('status', 'cancelled')
 
-      const earned = (data ?? []).reduce((sum: number, row: any) => sum + (row.service?.price ?? 0), 0)
+      const earned = (data ?? []).reduce((sum: number, row: any) => sum + appointmentPrice(row), 0)
       const count = (data ?? []).length
       if (count > 0) months.push({ label, monthParam, earned, count })
     }
@@ -97,11 +97,12 @@ export default function ReportesPage() {
 
       const appts = data.appointments as {
         start_time: string
+        price: number | null
         service: { name: string; price: number } | null
         customer: { name: string; phone: string } | null
       }[]
 
-      const total = appts.reduce((sum, a) => sum + (a.service?.price ?? 0), 0)
+      const total = appts.reduce((sum, a) => sum + appointmentPrice(a), 0)
       const promedio = appts.length > 0 ? Math.round(total / appts.length) : 0
       const fp = (n: number) => '$' + n.toLocaleString('es-CO')
 
@@ -150,7 +151,7 @@ export default function ReportesPage() {
           a.customer?.name ?? '—',
           a.customer?.phone ?? '—',
           a.service?.name ?? '—',
-          a.service?.price ? fp(a.service.price) : '—',
+          appointmentPrice(a) ? fp(appointmentPrice(a)) : '—',
         ]
       })
 

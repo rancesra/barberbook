@@ -166,6 +166,8 @@ export async function POST(request: NextRequest) {
         status: 'sync_pending',
         notes: notes ?? null,
         cancellation_code: cancellationCode,
+        // Lo que vale hoy: si el precio del servicio cambia después, esta cita no cambia
+        price: service.price,
       })
       .select('*')
       .single()

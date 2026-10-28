@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
   // Obtener citas del mes
   const { data: appointments } = await supabase
     .from('appointments')
-    .select('start_time, status, service:services(name, price), customer:customers(name, phone)')
+    .select('start_time, status, price, service:services(name, price), customer:customers(name, phone)')
     .eq('barber_id', barber.id)
     .gte('start_time', rangeStart)
     .lte('start_time', rangeEnd)
